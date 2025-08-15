@@ -126,22 +126,15 @@
     const API_CONFIG = {
       baseUrl: 'https://api.sheety.co/17eef15acf616d80920db8b74d3afd2d/medicalbuddies/',
       sheets: [
-        'Φύλλο1', // Current sheet (corrected capitalization)
-        'Φύλλο2', // Try additional sheets
-        'Φύλλο3',
-        'φύλλο1', // backup lowercase
-        'φύλλο2',
-        'φύλλο3',
-        'sheet1',
-        'sheet2',
-        'courses',
-        'schedule'
+        '%CF%86%CF%8D%CE%BB%CE%BB%CE%BF1', // φύλλο1 (URL encoded)
+        '%CF%86%CF%8D%CE%BB%CE%BB%CE%BF2', // φύλλο2 (URL encoded)
+        '%CF%86%CF%8D%CE%BB%CE%BB%CE%BF3', // φύλλο3 (URL encoded)
       ]
     };
 
     async function fetchSheetData(sheetName) {
       try {
-        const url = `${API_CONFIG.baseUrl}${encodeURIComponent(sheetName)}`;
+        const url = `${API_CONFIG.baseUrl}${sheetName}`;
         console.log(`Attempting to fetch from: ${url}`);
         
         // Create authorization header using Basic Auth
@@ -160,8 +153,8 @@
         console.log(`Successfully fetched data from sheet: ${sheetName}`, data);
         
         // Handle different possible data structures
-        const rows = data[sheetName] || data[Object.keys(data)[0]] || [];
-        return { sheetName, rows };
+        const rows = data['φύλλο1'] || data[Object.keys(data)[0]] || [];
+        return { sheetName: 'φύλλο1', rows };
       } catch (error) {
         console.log(`Error fetching sheet "${sheetName}":`, error);
         return null;
@@ -191,14 +184,22 @@
       sheets.forEach(({ sheetName, rows }) => {
         console.log(`Processing sheet: ${sheetName} with ${rows.length} rows`);
         
-        rows.forEach(row => {
-          // Try different possible column names for flexibility
-          const courseName = row['course name'] || row['courseName'] || row['Course Name'] || row['Course'];
-          const date = row['date'] || row['Date'] || row['schedule'] || row['Schedule'];
-          const time = row['time'] || row['Time'] || row['available times'] || row['Available Times'];
+        // Filter rows to only include the course data range (rows 107-287, which are id 107-287)
+        const courseRows = rows.filter(row => row.id >= 107 && row.id <= 287);
+        console.log(`Found ${courseRows.length} course rows in the specified range (107-287)`);
+        
+        courseRows.forEach(row => {
+          // Based on the API structure:
+          // - kyra: Course Name (Column A)
+          // - firas: Date (Column B) 
+          // - eleni: Time (Column C)
+          const courseName = row['kyra'];
+          const date = row['firas'];
+          const time = row['eleni'];
           
-          if (!courseName || !date) {
-            console.log('Skipping row with missing course name or date:', row);
+          // Skip header rows or rows without proper data
+          if (!courseName || courseName === 'Course Name' || !date || !time) {
+            console.log('Skipping row - missing data or header:', row);
             return;
           }
           
