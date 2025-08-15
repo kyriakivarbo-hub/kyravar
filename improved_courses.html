@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Greekmedibuddies — Courses</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --primary-red: #e63946;
+      --primary-blue: #21273C;
+      --primary-white: #ffffff;
+    }
+    
+    .course-card {
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    
+    .course-card:hover {
+      background-color: #f8fafc;
+      border-color: var(--primary-red);
+      transform: translateY(-2px);
+    }
+    
+    .tab-button {
+      transition: all 0.3s ease;
+    }
+    
+    .tab-button.active {
+      background-color: var(--primary-red);
+      color: white;
+      border-bottom: 3px solid var(--primary-blue);
+    }
+    
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease-in;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid var(--primary-red);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="bg-white text-gray-800">
+
+  <section class="py-12 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <h3 class="text-3xl font-bold text-center text-[var(--primary-blue)]">Our Courses</h3>
+      <p class="mt-2 text-center text-gray-600">Select a course, choose your date and time, and book your spot.</p>
+      
+      <!-- Loading indicator -->
+      <div id="loadingIndicator" class="flex justify-center items-center py-12">
+        <div class="loading-spinner"></div>
+        <span class="ml-3 text-gray-600">Loading courses...</span>
+      </div>
+      
+      <!-- Error message -->
+      <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-8">
+        <strong>Error:</strong> <span id="errorText"></span>
+      </div>
+      
+      <!-- Course tabs -->
+      <div id="courseTabs" class="hidden mt-8">
+        <div class="flex flex-wrap justify-center gap-2 mb-6" id="tabButtons"></div>
+        <div id="tabContents"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Booking Modal -->
+  <div id="bookingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+      <h4 id="modalCourseName" class="text-xl font-bold mb-4 text-[var(--primary-blue)]"></h4>
+      
+      <div class="mb-4">
+        <label for="dateSelect" class="block mb-2 font-semibold text-gray-700">Select Date:</label>
+        <select id="dateSelect" class="w-full border border-gray-300 rounded p-3 focus:outline-none focus:border-[var(--primary-red)]">
+          <option value="">Choose a date...</option>
+        </select>
+      </div>
+      
+      <div class="mb-6">
+        <label for="timeSelect" class="block mb-2 font-semibold text-gray-700">Select Time:</label>
+        <select id="timeSelect" class="w-full border border-gray-300 rounded p-3 focus:outline-none focus:border-[var(--primary-red)]">
+          <option value="">Choose a time...</option>
+        </select>
+      </div>
+      
+      <div class="flex gap-3">
+        <button id="confirmBooking" class="flex-1 bg-[var(--primary-red)] text-white px-4 py-3 rounded font-semibold hover:bg-red-600 transition-colors">
+          Confirm Booking
+        </button>
+        <button id="closeModal" class="flex-1 px-4 py-3 border border-gray-300 rounded font-semibold hover:bg-gray-50 transition-colors">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let courseData = {};
+    let allSheets = [];
+    
+    // Configuration - you can modify these URLs to test different sheets
+    const API_CONFIG = {
+      baseUrl: 'https://api.sheety.co/17eef15acf616d80920db8b74d3afd2d/medicalbuddies/',
+      sheets: [
+        'φύλλο1', // Current sheet
+        'φύλλο2', // Try additional sheets
+        'φύλλο3',
+        'sheet1',
+        'sheet2',
+        'courses',
+        'schedule'
+      ]
+    };
+
+    async function fetchSheetData(sheetName) {
+      try {
+        const url = `${API_CONFIG.baseUrl}${encodeURIComponent(sheetName)}`;
+        console.log(`Attempting to fetch from: ${url}`);
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+          console.log(`Sheet "${sheetName}" not found or inaccessible`);
+          return null;
+        }
+        
+        const data = await response.json();
+        console.log(`Successfully fetched data from sheet: ${sheetName}`, data);
+        
+        // Handle different possible data structures
+        const rows = data[sheetName] || data[Object.keys(data)[0]] || [];
+        return { sheetName, rows };
+      } catch (error) {
+        console.log(`Error fetching sheet "${sheetName}":`, error);
+        return null;
+      }
+    }
+
+    async function fetchAllAvailableSheets() {
+      console.log('Fetching data from all available sheets...');
+      const promises = API_CONFIG.sheets.map(sheet => fetchSheetData(sheet));
+      const results = await Promise.all(promises);
+      
+      // Filter out failed requests and empty sheets
+      allSheets = results.filter(result => 
+        result && 
+        result.rows && 
+        Array.isArray(result.rows) && 
+        result.rows.length > 0
+      );
+      
+      console.log(`Found ${allSheets.length} available sheets:`, allSheets.map(s => s.sheetName));
+      return allSheets;
+    }
+
+    function processSheetData(sheets) {
+      courseData = {};
+      
+      sheets.forEach(({ sheetName, rows }) => {
+        console.log(`Processing sheet: ${sheetName} with ${rows.length} rows`);
+        
+        rows.forEach(row => {
+          // Try different possible column names for flexibility
+          const courseName = row['course name'] || row['courseName'] || row['Course Name'] || row['Course'];
+          const date = row['date'] || row['Date'] || row['schedule'] || row['Schedule'];
+          const time = row['time'] || row['Time'] || row['available times'] || row['Available Times'];
+          
+          if (!courseName || !date) {
+            console.log('Skipping row with missing course name or date:', row);
+            return;
+          }
+          
+          // Initialize course if not exists
+          if (!courseData[courseName]) {
+            courseData[courseName] = {
+              name: courseName,
+              dates: {},
+              sheet: sheetName
+            };
+          }
+          
+          // Process time data
+          let times = [];
+          if (time) {
+            if (typeof time === 'string') {
+              times = time.split(',').map(t => t.trim()).filter(t => t);
+            } else if (Array.isArray(time)) {
+              times = time;
+            } else {
+              times = [time.toString()];
+            }
+          }
+          
+          // Add to course data
+          if (!courseData[courseName].dates[date]) {
+            courseData[courseName].dates[date] = [];
+          }
+          courseData[courseName].dates[date].push(...times);
+          
+          // Remove duplicates
+          courseData[courseName].dates[date] = [...new Set(courseData[courseName].dates[date])];
+        });
+      });
+      
+      console.log('Processed course data:', courseData);
+      return courseData;
+    }
+
+    function createCourseTabs() {
+      const tabButtons = document.getElementById('tabButtons');
+      const tabContents = document.getElementById('tabContents');
+      
+      // Clear existing content
+      tabButtons.innerHTML = '';
+      tabContents.innerHTML = '';
+      
+      const courses = Object.values(courseData);
+      
+      if (courses.length === 0) {
+        showError('No courses found in the spreadsheet data. Please check your data format.');
+        return;
+      }
+      
+      courses.forEach((course, index) => {
+        // Create tab button
+        const tabButton = document.createElement('button');
+        tabButton.className = `tab-button px-6 py-3 rounded-t-lg font-semibold ${index === 0 ? 'active' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
+        tabButton.textContent = course.name;
+        tabButton.onclick = () => showTab(index);
+        tabButtons.appendChild(tabButton);
+        
+        // Create tab content
+        const tabContent = document.createElement('div');
+        tabContent.className = `tab-content ${index === 0 ? 'active' : ''}`;
+        tabContent.id = `tab-${index}`;
+        
+        const courseCard = createCourseCard(course);
+        tabContent.appendChild(courseCard);
+        tabContents.appendChild(tabContent);
+      });
+    }
+
+    function createCourseCard(course) {
+      const card = document.createElement('div');
+      card.className = 'bg-white p-6 rounded-lg shadow-lg course-card max-w-md mx-auto';
+      card.setAttribute('data-course', course.name);
+      
+      const availableDates = Object.keys(course.dates);
+      const totalSlots = Object.values(course.dates).flat().length;
+      
+      card.innerHTML = `
+        <div class="text-center">
+          <h4 class="text-xl font-bold text-[var(--primary-blue)] mb-3">${course.name}</h4>
+          <div class="text-sm text-gray-600 mb-4">
+            <p><strong>Available Dates:</strong> ${availableDates.length}</p>
+            <p><strong>Total Time Slots:</strong> ${totalSlots}</p>
+            <p><strong>Data Source:</strong> ${course.sheet}</p>
+          </div>
+          <div class="mb-4">
+            <h5 class="font-semibold text-gray-700 mb-2">Upcoming Dates:</h5>
+            <div class="text-sm text-gray-600">
+              ${availableDates.slice(0, 3).map(date => `
+                <div class="mb-1">
+                  <strong>${date}:</strong> ${course.dates[date].join(', ')}
+                </div>
+              `).join('')}
+              ${availableDates.length > 3 ? `<div class="text-gray-500">...and ${availableDates.length - 3} more dates</div>` : ''}
+            </div>
+          </div>
+          <button class="book-btn bg-[var(--primary-red)] text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-600 transition-colors w-full">
+            Book This Course
+          </button>
+        </div>
+      `;
+      
+      return card;
+    }
+
+    function showTab(index) {
+      // Update tab buttons
+      document.querySelectorAll('.tab-button').forEach((btn, i) => {
+        if (i === index) {
+          btn.className = 'tab-button px-6 py-3 rounded-t-lg font-semibold active';
+        } else {
+          btn.className = 'tab-button px-6 py-3 rounded-t-lg font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300';
+        }
+      });
+      
+      // Update tab contents
+      document.querySelectorAll('.tab-content').forEach((content, i) => {
+        content.className = `tab-content ${i === index ? 'active' : ''}`;
+      });
+    }
+
+    function setupBookingModal() {
+      const modal = document.getElementById('bookingModal');
+      const dateSelect = document.getElementById('dateSelect');
+      const timeSelect = document.getElementById('timeSelect');
+      const modalCourseName = document.getElementById('modalCourseName');
+
+      // Event delegation for dynamically created book buttons
+      document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('book-btn')) {
+          const courseCard = e.target.closest('.course-card');
+          const courseName = courseCard.getAttribute('data-course');
+          const course = courseData[courseName];
+          
+          if (!course) {
+            alert('Course data not found');
+            return;
+          }
+          
+          modalCourseName.textContent = courseName;
+          
+          // Populate dates
+          dateSelect.innerHTML = '<option value="">Choose a date...</option>';
+          const dates = Object.keys(course.dates).sort();
+          
+          dates.forEach(date => {
+            const option = document.createElement('option');
+            option.value = date;
+            option.textContent = date;
+            dateSelect.appendChild(option);
+          });
+          
+          // Clear times
+          timeSelect.innerHTML = '<option value="">Choose a time...</option>';
+          
+          modal.classList.remove('hidden');
+        }
+      });
+
+      dateSelect.addEventListener('change', () => {
+        const courseName = modalCourseName.textContent;
+        const course = courseData[courseName];
+        const selectedDate = dateSelect.value;
+        
+        timeSelect.innerHTML = '<option value="">Choose a time...</option>';
+        
+        if (selectedDate && course && course.dates[selectedDate]) {
+          course.dates[selectedDate].forEach(time => {
+            const option = document.createElement('option');
+            option.value = time;
+            option.textContent = time;
+            timeSelect.appendChild(option);
+          });
+        }
+      });
+
+      document.getElementById('closeModal').addEventListener('click', () => {
+        modal.classList.add('hidden');
+      });
+
+      document.getElementById('confirmBooking').addEventListener('click', () => {
+        const courseName = modalCourseName.textContent;
+        const date = dateSelect.value;
+        const time = timeSelect.value;
+        
+        if (!courseName || !date || !time) {
+          alert('Please select a valid date and time.');
+          return;
+        }
+        
+        alert(`Successfully booked!\n\nCourse: ${courseName}\nDate: ${date}\nTime: ${time}`);
+        modal.classList.add('hidden');
+      });
+
+      // Close modal when clicking outside
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.add('hidden');
+        }
+      });
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      const errorText = document.getElementById('errorText');
+      
+      errorText.textContent = message;
+      errorDiv.classList.remove('hidden');
+      
+      document.getElementById('loadingIndicator').classList.add('hidden');
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingIndicator').classList.add('hidden');
+      document.getElementById('courseTabs').classList.remove('hidden');
+    }
+
+    // Initialize the application
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        console.log('Starting application...');
+        
+        const sheets = await fetchAllAvailableSheets();
+        
+        if (sheets.length === 0) {
+          showError('No accessible sheets found. Please check your API configuration and permissions.');
+          return;
+        }
+        
+        processSheetData(sheets);
+        
+        if (Object.keys(courseData).length === 0) {
+          showError('No valid course data found. Please ensure your spreadsheet has columns for course name, date, and time.');
+          return;
+        }
+        
+        createCourseTabs();
+        setupBookingModal();
+        hideLoading();
+        
+        console.log('Application initialized successfully');
+        
+      } catch (error) {
+        console.error('Error initializing application:', error);
+        showError(`Failed to load course data: ${error.message}`);
+      }
+    });
+  </script>
+</body>
+</html>
