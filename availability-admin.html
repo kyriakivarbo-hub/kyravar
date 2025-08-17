@@ -126,11 +126,17 @@
       return headers;
     }
 
-    function formatToMDY(dateStr) {
+    function formatToDMY(dateStr) {
       if (!dateStr) return '';
-      const d = new Date(dateStr);
-      if (Number.isNaN(d.getTime())) return dateStr;
-      return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`; // x/x/x
+      // Expecting input type="date" value: YYYY-MM-DD
+      const parts = String(dateStr).split('-');
+      if (parts.length !== 3) return dateStr;
+      const [yearStr, monthStr, dayStr] = parts;
+      const day = String(Number(dayStr)).padStart(2, '0');
+      const month = String(Number(monthStr)).padStart(2, '0');
+      const year = String(Number(yearStr));
+      if (!year || !month || !day) return dateStr;
+      return `${day}/${month}/${year}`; // dd/mm/yyyy
     }
 
     async function fetchAvailabilityRows() {
@@ -266,7 +272,7 @@
         return;
       }
 
-      const date = formatToMDY(dateRaw);
+      const date = formatToDMY(dateRaw);
       const times = timesRaw.split(',').map(t => t.trim()).filter(Boolean).join(',');
 
       const targetCourses = PERSON_TO_COURSES[person] || [];
@@ -314,7 +320,7 @@
         return;
       }
 
-      const date = formatToMDY(dateRaw);
+      const date = formatToDMY(dateRaw);
       const timesToDelete = timesRaw.split(',').map(t => t.trim()).filter(Boolean);
 
       const targetCourses = PERSON_TO_COURSES[person] || [];
@@ -366,11 +372,11 @@
     document.getElementById('refreshRequests').addEventListener('click', loadRequests);
     document.getElementById('refreshRequestsTop').addEventListener('click', loadRequests);
     document.getElementById('dateInput').addEventListener('change', () => {
-      document.getElementById('datePreview').textContent = `Selected: ${formatToMDY(document.getElementById('dateInput').value)}`;
+      document.getElementById('datePreview').textContent = `Selected: ${formatToDMY(document.getElementById('dateInput').value)}`;
     });
     document.getElementById('confirmDeleteTimes').addEventListener('click', deleteTimesForPerson);
     document.getElementById('dateInputDelete').addEventListener('change', () => {
-      document.getElementById('datePreviewDelete').textContent = `Selected: ${formatToMDY(document.getElementById('dateInputDelete').value)}`;
+      document.getElementById('datePreviewDelete').textContent = `Selected: ${formatToDMY(document.getElementById('dateInputDelete').value)}`;
     });
 
     // Gate the admin UI
