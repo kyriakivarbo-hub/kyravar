@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Availability Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --primary-red: #e63946;
+      --primary-blue: #21273C;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div class="max-w-3xl mx-auto p-4" id="authRoot">
+    <div class="bg-white rounded-md shadow p-6 mt-12">
+      <h2 class="text-xl font-semibold mb-3 text-center">Enter Admin Password</h2>
+      <div class="max-w-sm mx-auto">
+        <label class="block text-sm font-medium mb-1">Password</label>
+        <input id="adminPassword" type="password" class="w-full border rounded px-3 py-2" placeholder="Password" />
+        <button id="unlockAdmin" class="mt-3 w-full bg-[var(--primary-red)] text-white px-4 py-2 rounded font-semibold hover:bg-red-600">Unlock</button>
+        <p id="authMessage" class="text-sm text-red-600 mt-2 hidden">Incorrect password.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="adminRoot" class="max-w-3xl mx-auto p-4 hidden">
+    <h1 class="text-2xl font-bold text-[var(--primary-blue)] mb-4">Availability & Requests Admin</h1>
+
+    <!-- Availability registration -->
+    <section class="bg-white rounded-md shadow p-4 mb-6">
+      <h2 class="text-lg font-semibold mb-3">Add Available Hours</h2>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-medium mb-1">Select Person</label>
+          <select id="personSelect" class="w-full border rounded px-3 py-2">
+            <option value="Eleni">Eleni</option>
+            <option value="Firas">Firas</option>
+            <option value="Kyra">Kyra</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Select Date</label>
+          <input id="dateInput" type="date" class="w-full border rounded px-3 py-2" />
+          <p id="datePreview" class="text-xs text-gray-500 mt-1"></p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Available Times (comma-separated)</label>
+          <input id="timesInput" type="text" placeholder="hh:mm,hh:mm" class="w-full border rounded px-3 py-2" />
+        </div>
+      </div>
+      <div class="mt-4 flex gap-2">
+        <button id="confirmAvailability" class="bg-[var(--primary-red)] text-white px-4 py-2 rounded font-semibold hover:bg-red-600">Confirm</button>
+        <button id="refreshRequestsTop" class="border px-4 py-2 rounded hover:bg-gray-50">Refresh Requests</button>
+      </div>
+      <div id="availabilityResult" class="mt-3 text-sm"></div>
+    </section>
+
+    <!-- Delete specific time(s) from availability -->
+    <section class="bg-white rounded-md shadow p-4 mb-6">
+      <h2 class="text-lg font-semibold mb-3">Delete Time From Availability</h2>
+      <div class="grid gap-3 sm:grid-cols-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">Select Person</label>
+          <select id="personSelectDelete" class="w-full border rounded px-3 py-2">
+            <option value="Eleni">Eleni</option>
+            <option value="Firas">Firas</option>
+            <option value="Kyra">Kyra</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Select Date</label>
+          <input id="dateInputDelete" type="date" class="w-full border rounded px-3 py-2" />
+          <p id="datePreviewDelete" class="text-xs text-gray-500 mt-1"></p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Time(s) to delete (comma-separated)</label>
+          <input id="timesInputDelete" type="text" placeholder="hh:mm,hh:mm" class="w-full border rounded px-3 py-2" />
+        </div>
+      </div>
+      <div class="mt-4 flex gap-2">
+        <button id="confirmDeleteTimes" class="border px-4 py-2 rounded hover:bg-gray-50">Delete Times</button>
+      </div>
+      <div id="deleteResult" class="mt-3 text-sm"></div>
+    </section>
+
+    <!-- Requests queue -->
+    <section class="bg-white rounded-md shadow p-4">
+      <h2 class="text-lg font-semibold mb-3">Pending Booking Requests</h2>
+      <div id="requestsContainer" class="space-y-3"></div>
+      <div class="mt-3">
+        <button id="refreshRequests" class="border px-4 py-2 rounded hover:bg-gray-50">Refresh</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const AVAILABILITY_API = {
+      baseUrl: 'https://api.sheety.co/17eef15acf616d80920db8b74d3afd2d/medicalbuddies/',
+      sheetName: 'φύλλο1'
+    };
+
+    const REQUESTS_API = {
+      baseUrl: 'https://api.sheety.co/17eef15acf616d80920db8b74d3afd2d/medicalbuddiesDatabase/',
+      sheetName: 'φύλλο1'
+    };
+
+    // Optional Bearer token. Leave empty if not required
+    const SHEETY_TOKEN = '';
+
+    const PERSON_TO_COURSES = {
+      'Eleni': ['MRCPCH Exam Preparation'],
+      'Firas': ['MRCOG Examination Preparation Programme'],
+      'Kyra': [
+        'Advanced Interview Skills & Mock Examination Sessions',
+        'Comprehensive Mentorship & UK Medical Pathway Guidance',
+        'Professional CV and Job Application Enhancement',
+        'MRCP Examination Preparation Programme'
+      ]
+    };
+
+    function authHeaders(base = {}) {
+      const headers = { ...base };
+      if (SHEETY_TOKEN) headers['Authorization'] = `Bearer ${SHEETY_TOKEN}`;
+      return headers;
+    }
+
+    function formatToDMY(dateStr) {
+      if (!dateStr) return '';
+      // Expecting input type="date" value: YYYY-MM-DD
+      const parts = String(dateStr).split('-');
+      if (parts.length !== 3) return dateStr;
+      const [yearStr, monthStr, dayStr] = parts;
+      const day = String(Number(dayStr)).padStart(2, '0');
+      const month = String(Number(monthStr)).padStart(2, '0');
+      const year = String(Number(yearStr));
+      if (!year || !month || !day) return dateStr;
+      return `${day}/${month}/${year}`; // dd/mm/yyyy
+    }
+
+    async function fetchAvailabilityRows() {
+      const url = `${AVAILABILITY_API.baseUrl}${encodeURIComponent(AVAILABILITY_API.sheetName)}?t=${Date.now()}`;
+      const res = await fetch(url, { headers: authHeaders(), cache: 'no-store' });
+      if (!res.ok) throw new Error(`Availability fetch failed: ${res.status}`);
+      const data = await res.json();
+      return data[AVAILABILITY_API.sheetName] || [];
+    }
+
+    async function updateAvailabilityRow(rowId, updates) {
+      const url = `${AVAILABILITY_API.baseUrl}${encodeURIComponent(AVAILABILITY_API.sheetName)}/${rowId}`;
+      const body = { [AVAILABILITY_API.sheetName]: updates, updatedAt: new Date().toISOString() };
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: authHeaders({ 'Content-Type': 'application/json', 'Accept': 'application/json' }),
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error(`Availability update failed: ${res.status}`);
+      return res.json();
+    }
+
+    async function fetchRequests() {
+      const url = `${REQUESTS_API.baseUrl}${encodeURIComponent(REQUESTS_API.sheetName)}?t=${Date.now()}`;
+      const res = await fetch(url, { headers: authHeaders(), cache: 'no-store' });
+      if (!res.ok) throw new Error(`Requests fetch failed: ${res.status}`);
+      const data = await res.json();
+      const value = data[REQUESTS_API.sheetName];
+      if (Array.isArray(value)) return value;
+      // Fallback if Sheety returns a different key casing or structure
+      const firstArray = Object.values(data).find(v => Array.isArray(v));
+      return firstArray || [];
+    }
+
+    async function deleteRequest(id) {
+      const url = `${REQUESTS_API.baseUrl}${encodeURIComponent(REQUESTS_API.sheetName)}/${id}`;
+      const res = await fetch(url, { method: 'DELETE', headers: authHeaders() });
+      if (!res.ok) throw new Error(`Request delete failed: ${res.status}`);
+    }
+
+    async function approveRequest(requestObj) {
+      // Reserve slot: find row by course + date; replace selected time with NONE
+      const courseName = requestObj.courseName;
+      const date = requestObj.date;
+      const selectedTimes = String(requestObj.time || '').split(',').map(t => t.trim()).filter(Boolean);
+      const rows = await fetchAvailabilityRows();
+      const match = rows.find(r => r.courseName === courseName && r.date === date);
+      if (!match) throw new Error('No matching availability row for course/date');
+
+      const timesStr = String(match.availableTimes || '').split(',').map(t => t.trim()).filter(Boolean).join(',');
+      let times = timesStr ? timesStr.split(',').map(t => t.trim()) : [];
+      if (!times.length) throw new Error('No available times on selected date');
+
+      let changed = false;
+      times = times.map(t => {
+        if (selectedTimes.includes(t)) { changed = true; return 'NONE'; }
+        return t;
+      });
+      if (!changed) throw new Error('Selected time not found in availability');
+
+      await updateAvailabilityRow(match.id, { availableTimes: times.join(',') });
+      await deleteRequest(requestObj.id);
+    }
+
+    function renderRequests(list) {
+      const container = document.getElementById('requestsContainer');
+      container.innerHTML = '';
+      if (!list.length) {
+        container.innerHTML = '<div class="text-sm text-gray-600">No pending requests.</div>';
+        return;
+      }
+      list.forEach(req => {
+        const courseField = req.courseName || req.course || '';
+        const card = document.createElement('div');
+        card.className = 'border rounded p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3';
+        card.innerHTML = `
+          <div class="text-sm">
+            <div><span class="font-semibold">Course:</span> ${courseField}</div>
+            <div><span class="font-semibold">Name:</span> ${req.name || ''} &lt;${req.email || ''}&gt;</div>
+            <div><span class="font-semibold">Date:</span> ${req.date || ''}</div>
+            <div><span class="font-semibold">Time:</span> ${req.time || ''}</div>
+            <div class="text-xs text-gray-500">Request ID: ${req.id}</div>
+          </div>
+          <div class="flex gap-2">
+            <button class="approveBtn bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">Approve</button>
+            <button class="declineBtn border px-3 py-1 rounded text-sm hover:bg-gray-50">Decline</button>
+          </div>
+        `;
+        card.querySelector('.approveBtn').addEventListener('click', async () => {
+          card.querySelector('.approveBtn').disabled = true;
+          try {
+            await approveRequest({ ...req, courseName: courseField });
+            await loadRequests();
+          } catch (e) {
+            alert(`Approve failed: ${e.message}`);
+            card.querySelector('.approveBtn').disabled = false;
+          }
+        });
+        card.querySelector('.declineBtn').addEventListener('click', async () => {
+          card.querySelector('.declineBtn').disabled = true;
+          try {
+            await deleteRequest(req.id);
+            await loadRequests();
+          } catch (e) {
+            alert(`Decline failed: ${e.message}`);
+            card.querySelector('.declineBtn').disabled = false;
+          }
+        });
+        container.appendChild(card);
+      });
+    }
+
+    async function loadRequests() {
+      try {
+        const list = await fetchRequests();
+        renderRequests(list);
+      } catch (e) {
+        const container = document.getElementById('requestsContainer');
+        container.innerHTML = `<div class="text-sm text-red-600">Failed to load requests: ${e.message}</div>`;
+      }
+    }
+
+    async function handleConfirmAvailability() {
+      const person = document.getElementById('personSelect').value;
+      const dateRaw = document.getElementById('dateInput').value;
+      const timesRaw = document.getElementById('timesInput').value.trim();
+      const result = document.getElementById('availabilityResult');
+      result.textContent = '';
+
+      if (!dateRaw || !timesRaw) {
+        result.textContent = 'Please select a date and enter times.';
+        result.className = 'mt-3 text-sm text-red-600';
+        return;
+      }
+
+      const date = formatToDMY(dateRaw);
+      const times = timesRaw.split(',').map(t => t.trim()).filter(Boolean).join(',');
+
+      const targetCourses = PERSON_TO_COURSES[person] || [];
+      if (!targetCourses.length) {
+        result.textContent = 'No target courses mapped for selected person.';
+        result.className = 'mt-3 text-sm text-red-600';
+        return;
+      }
+
+      try {
+        const rows = await fetchAvailabilityRows();
+        const updates = [];
+        for (const courseName of targetCourses) {
+          const emptyRow = rows.find(r => r.courseName === courseName && (!r.date || r.date.trim() === '' || r.date === 'NONE'));
+          if (!emptyRow) {
+            updates.push({ courseName, status: 'No empty row found' });
+            continue;
+          }
+          await updateAvailabilityRow(emptyRow.id, { date, availableTimes: times });
+          updates.push({ courseName, status: 'Updated' });
+        }
+        const ok = updates.filter(u => u.status === 'Updated').map(u => u.courseName).join(', ');
+        const not = updates.filter(u => u.status !== 'Updated').map(u => `${u.courseName} (${u.status})`).join(', ');
+        result.className = 'mt-3 text-sm';
+        result.innerHTML = `
+          <div class="text-green-700">Updated: ${ok || 'None'}</div>
+          ${not ? `<div class="text-gray-600">Skipped: ${not}</div>` : ''}
+        `;
+      } catch (e) {
+        result.textContent = `Failed: ${e.message}`;
+        result.className = 'mt-3 text-sm text-red-600';
+      }
+    }
+
+    async function deleteTimesForPerson() {
+      const person = document.getElementById('personSelectDelete').value;
+      const dateRaw = document.getElementById('dateInputDelete').value;
+      const timesRaw = document.getElementById('timesInputDelete').value.trim();
+      const result = document.getElementById('deleteResult');
+      result.textContent = '';
+
+      if (!dateRaw || !timesRaw) {
+        result.textContent = 'Please select a date and enter times to delete.';
+        result.className = 'mt-3 text-sm text-red-600';
+        return;
+      }
+
+      const date = formatToDMY(dateRaw);
+      const timesToDelete = timesRaw.split(',').map(t => t.trim()).filter(Boolean);
+
+      const targetCourses = PERSON_TO_COURSES[person] || [];
+      if (!targetCourses.length) {
+        result.textContent = 'No target courses mapped for selected person.';
+        result.className = 'mt-3 text-sm text-red-600';
+        return;
+      }
+
+      try {
+        const rows = await fetchAvailabilityRows();
+        const updates = [];
+        for (const courseName of targetCourses) {
+          const row = rows.find(r => r.courseName === courseName && r.date === date);
+          if (!row) {
+            updates.push({ courseName, status: 'No row found for date' });
+            continue;
+          }
+          const currentTimes = String(row.availableTimes || '')
+            .split(',')
+            .map(t => t.trim())
+            .filter(Boolean);
+
+          if (!currentTimes.length) {
+            updates.push({ courseName, status: 'No times to edit' });
+            continue;
+          }
+
+          const newTimes = currentTimes.map(t => (timesToDelete.includes(t) ? 'NONE' : t));
+          await updateAvailabilityRow(row.id, { availableTimes: newTimes.join(',') });
+          updates.push({ courseName, status: 'Updated' });
+        }
+
+        const ok = updates.filter(u => u.status === 'Updated').map(u => u.courseName).join(', ');
+        const not = updates.filter(u => u.status !== 'Updated').map(u => `${u.courseName} (${u.status})`).join(', ');
+        result.className = 'mt-3 text-sm';
+        result.innerHTML = `
+          <div class="text-green-700">Updated: ${ok || 'None'}</div>
+          ${not ? `<div class="text-gray-600">Skipped: ${not}</div>` : ''}
+        `;
+      } catch (e) {
+        result.textContent = `Failed: ${e.message}`;
+        result.className = 'mt-3 text-sm text-red-600';
+      }
+    }
+
+    // UI bindings
+    document.getElementById('confirmAvailability').addEventListener('click', handleConfirmAvailability);
+    document.getElementById('refreshRequests').addEventListener('click', loadRequests);
+    document.getElementById('refreshRequestsTop').addEventListener('click', loadRequests);
+    document.getElementById('dateInput').addEventListener('change', () => {
+      document.getElementById('datePreview').textContent = `Selected: ${formatToDMY(document.getElementById('dateInput').value)}`;
+    });
+    document.getElementById('confirmDeleteTimes').addEventListener('click', deleteTimesForPerson);
+    document.getElementById('dateInputDelete').addEventListener('change', () => {
+      document.getElementById('datePreviewDelete').textContent = `Selected: ${formatToDMY(document.getElementById('dateInputDelete').value)}`;
+    });
+
+    // Gate the admin UI
+    const PASSWORD = 'Stefanos_is_the_best';
+    function gateAdmin() {
+      const unlockBtn = document.getElementById('unlockAdmin');
+      const pwdInput = document.getElementById('adminPassword');
+      const msg = document.getElementById('authMessage');
+      const authRoot = document.getElementById('authRoot');
+      const adminRoot = document.getElementById('adminRoot');
+      unlockBtn.addEventListener('click', () => {
+        if (pwdInput.value === PASSWORD) {
+          msg.classList.add('hidden');
+          authRoot.classList.add('hidden');
+          adminRoot.classList.remove('hidden');
+        } else {
+          msg.classList.remove('hidden');
+        }
+      });
+      // Enter key support
+      pwdInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') unlockBtn.click();
+      });
+    }
+
+    // Initial load
+    gateAdmin();
+    // Do not auto-load requests until unlocked. Bind after unlock
+    const originalLoadRequests = loadRequests;
+    loadRequests = function(){};
+    document.getElementById('unlockAdmin').addEventListener('click', () => {
+      if (document.getElementById('adminPassword').value === PASSWORD) {
+        // Restore and load
+        loadRequests = originalLoadRequests;
+        loadRequests();
+      }
+    });
+  </script>
+</body>
+</html>
