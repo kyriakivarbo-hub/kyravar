@@ -1,0 +1,1233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Greekmedibuddies — Courses</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.paypalobjects.com/ncp/cart/cart.js" data-merchant-id="9Z9CGM6F8G7LW"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <style>
+    :root {
+      --primary-red: #e63946;
+      --primary-blue: #21273C;
+      --primary-white: #ffffff;
+      --accent-gold: #f39c12;
+      --accent-green: #27ae60;
+    }
+    
+    .course-card {
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    
+    .course-card:hover {
+      background-color: #f8fafc;
+      border-color: var(--primary-red);
+      transform: translateY(-2px);
+    }
+    
+    .tab-button {
+      transition: all 0.3s ease;
+    }
+    
+    .tab-button.active {
+      background-color: var(--primary-red);
+      color: white;
+      border-bottom: 3px solid var(--primary-blue);
+    }
+    
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease-in;
+    }
+    
+    .tab-content.active {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    
+    @media (max-width: 768px) {
+      .tab-content.active {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid var(--primary-red);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .description-card {
+      background: linear-gradient(135deg, #21273C 0%, #4a69bd 50%, #2c5aa0 100%);
+      color: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .description-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    
+    .stat-item {
+      background: rgba(255,255,255,0.1);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+    
+    .icon-shape {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 1.5rem;
+    }
+    
+    .medical-icon { background: linear-gradient(45deg, var(--primary-red), #ff6b6b); }
+    .exam-icon { background: linear-gradient(45deg, var(--primary-blue), #4a69bd); }
+    .interview-icon { background: linear-gradient(45deg, var(--accent-gold), #f39c12); }
+    .mentorship-icon { background: linear-gradient(45deg, var(--accent-green), #2ecc71); }
+    .cv-icon { background: linear-gradient(45deg, #1e3a8a, #3b82f6); }
+    .internal-icon { background: linear-gradient(45deg, #1e40af, #60a5fa); }
+    
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+    
+    .progress-ring__circle {
+      stroke: rgba(255,255,255,0.3);
+      stroke-width: 4;
+      fill: transparent;
+      r: 30;
+      cx: 40;
+      cy: 40;
+    }
+    
+    .progress-ring__progress {
+      stroke: white;
+      stroke-width: 4;
+      fill: transparent;
+      r: 30;
+      cx: 40;
+      cy: 40;
+      stroke-dasharray: 188.5;
+      stroke-dashoffset: 188.5;
+      transition: stroke-dashoffset 0.5s ease-in-out;
+      stroke-linecap: round;
+    }
+
+    .cart-button-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    .recommendation-card {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .recommendation-card:hover {
+      transform: translateY(-2px);
+      border-color: white;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .pulse-animation {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- PayPal Cart Button - Top Right -->
+  <div class="cart-button-container">
+    <paypal-cart-button data-id="pp-view-cart"></paypal-cart-button>
+  </div>
+
+  <section class="py-12">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-[var(--primary-blue)] mb-4">
+          Greek Medical Buddies
+        </h1>
+        <h2 class="text-2xl font-semibold text-[var(--primary-red)] mb-2">
+          Professional Medical Training Courses
+        </h2>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+          Comprehensive preparation programs designed by medical professionals to help you excel in your medical career journey in the UK.
+        </p>
+      </div>
+      
+      <!-- Loading indicator -->
+      <div id="loadingIndicator" class="flex justify-center items-center py-12">
+        <div class="loading-spinner"></div>
+        <span class="ml-3 text-gray-600">Loading courses...</span>
+      </div>
+      
+      <!-- Error message -->
+      <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-8">
+        <strong>Error:</strong> <span id="errorText"></span>
+      </div>
+      
+      <!-- Course tabs -->
+      <div id="courseTabs" class="hidden mt-8">
+        <div class="flex flex-wrap justify-center gap-2 mb-8" id="tabButtons">
+          <!-- Static tabs -->
+          <button class="tab-button px-3 py-2 rounded-t-lg font-semibold text-xs active" onclick="showTab(0)" data-course="MRCPCH Exam Preparation">
+            MRCPCH
+          </button>
+          <button class="tab-button px-3 py-2 rounded-t-lg font-semibold text-xs bg-gray-200 text-gray-700 hover:bg-gray-300" onclick="showTab(1)" data-course="MRCOG Examination Preparation Programme">
+            MRCOG
+          </button>
+          <button class="tab-button px-3 py-2 rounded-t-lg font-semibold text-xs bg-gray-200 text-gray-700 hover:bg-gray-300" onclick="showTab(2)" data-course="Advanced Interview Skills & Mock Examination Sessions">
+            Interview Skills
+          </button>
+          <button class="tab-button px-3 py-2 rounded-t-lg font-semibold text-xs bg-gray-200 text-gray-700 hover:bg-gray-300" onclick="showTab(3)" data-course="Comprehensive Mentorship & UK Medical Pathway Guidance">
+            Mentorship
+          </button>
+          <button class="tab-button px-3 py-2 rounded-t-lg font-semibold text-xs bg-gray-200 text-gray-700 hover:bg-gray-300" onclick="showTab(4)" data-course="Professional CV and Job Application Enhancement">
+            CV Enhancement
+          </button>
+          <button class="tab-button px-3 py-2 rounded-t-lg font-semibold text-xs bg-gray-200 text-gray-700 hover:bg-gray-300" onclick="showTab(5)" data-course="MRCP Examination Preparation Programme">
+            MRCP
+          </button>
+        </div>
+        <div id="tabContents">
+          <!-- Tab contents will be generated dynamically -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Booking Modal -->
+  <div id="bookingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+      <h4 id="modalCourseName" class="text-xl font-bold mb-4 text-[var(--primary-blue)]"></h4>
+      
+      <div class="mb-4">
+        <label for="customerName" class="block mb-2 font-semibold text-gray-700">Your Name:</label>
+        <input type="text" id="customerName" placeholder="Enter your full name" class="w-full border border-gray-300 rounded p-3 focus:outline-none focus:border-[var(--primary-red)]">
+      </div>
+      
+      <div class="mb-4">
+        <label for="customerEmail" class="block mb-2 font-semibold text-gray-700">Your Email:</label>
+        <input type="email" id="customerEmail" placeholder="Enter your email address" class="w-full border border-gray-300 rounded p-3 focus:outline-none focus:border-[var(--primary-red)]">
+      </div>
+      
+      <div class="mb-4">
+        <label for="dateSelect" class="block mb-2 font-semibold text-gray-700">Select Date:</label>
+        <select id="dateSelect" class="w-full border border-gray-300 rounded p-3 focus:outline-none focus:border-[var(--primary-red)]">
+          <option value="">Choose a date...</option>
+        </select>
+      </div>
+      
+      <div class="mb-6">
+        <label for="timeSelect" class="block mb-2 font-semibold text-gray-700">Select Time:</label>
+        <select id="timeSelect" class="w-full border border-gray-300 rounded p-3 focus:outline-none focus:border-[var(--primary-red)]">
+          <option value="">Choose a time...</option>
+        </select>
+      </div>
+      
+      <div class="flex gap-3">
+        <button id="confirmBooking" class="flex-1 bg-[var(--primary-red)] text-white px-4 py-3 rounded font-semibold hover:bg-red-600 transition-colors">
+          Confirm Booking
+        </button>
+        <button id="closeModal" class="flex-1 px-4 py-3 border border-gray-300 rounded font-semibold hover:bg-gray-50 transition-colors">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Modal -->
+  <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-70">
+    <div class="bg-white p-8 rounded-lg text-center">
+      <div class="loading-spinner mx-auto mb-4"></div>
+      <h3 class="text-lg font-semibold text-[var(--primary-blue)] mb-2">Processing Your Booking</h3>
+      <p class="text-gray-600">Please wait while we send your confirmation email...</p>
+    </div>
+  </div>
+
+  <!-- Payment Modal for All Courses -->
+  <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-60">
+    <div class="bg-white p-6 rounded-lg max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="text-center mb-6">
+        <h4 class="text-2xl font-bold text-[var(--primary-blue)] mb-2">🎉 Booking Confirmed!</h4>
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+          <p class="text-green-800 font-semibold">✅ Your booking has been successfully processed</p>
+          <div class="text-sm text-green-700 mt-2">
+            <strong>Course:</strong> <span id="paymentCourseName"></span><br>
+            <strong>Date:</strong> <span id="paymentDate"></span><br>
+            <strong>Time:</strong> <span id="paymentTime"></span><br>
+            <strong>Name:</strong> <span id="paymentCustomerName"></span><br>
+            <strong>Email:</strong> <span id="paymentCustomerEmail"></span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mb-6 text-center">
+        <h5 class="text-lg font-bold text-[var(--primary-blue)] mb-4">Complete Your Purchase</h5>
+        <div id="paymentButton" class="mb-4">
+          <!-- PayPal button will be inserted here -->
+        </div>
+      </div>
+
+      <!-- Recommendations Section -->
+      <div class="border-t pt-6">
+        <h6 class="text-lg font-bold text-center mb-4 text-[var(--primary-red)]">
+          🌟 Recommended for You - Build Your Complete Medical Career Package!
+        </h6>
+        <div id="recommendationsContainer">
+          <!-- Recommendations will be inserted here dynamically -->
+        </div>
+      </div>
+      
+      <div class="text-center mt-6">
+        <button id="closePaymentModal" class="px-6 py-3 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let courseData = {};
+    let currentBookingDetails = null; // Store current booking for PayPal completion
+    let sheetDataStore = []; // Store original sheet data for tracking row IDs
+    
+    // Initialize EmailJS with your public key
+    emailjs.init("XToAhFj0xUa_JbJWr");
+    
+    // Static course configuration with detailed descriptions
+    const COURSES = [
+      "MRCPCH Exam Preparation",
+      "MRCOG Examination Preparation Programme", 
+      "Advanced Interview Skills & Mock Examination Sessions",
+      "Comprehensive Mentorship & UK Medical Pathway Guidance",
+      "Professional CV and Job Application Enhancement",
+      "MRCP Examination Preparation Programme"
+    ];
+
+    // PayPal product IDs for each course
+    const PAYPAL_IDS = {
+      "MRCPCH Exam Preparation": "7CZTM8BPHKZ3L",
+      "MRCOG Examination Preparation Programme": "3VBUM5S7VRMUJ",
+      "Advanced Interview Skills & Mock Examination Sessions": "9B5R9FPZXBF48",
+      "Comprehensive Mentorship & UK Medical Pathway Guidance": "D2SU8DSPFMUNG",
+      "Professional CV and Job Application Enhancement": "WJZQFXQF5WUYS",
+      "MRCP Examination Preparation Programme": "QX5C72Y442M4W"
+    };
+
+    // Course recommendations based on current selection
+    const COURSE_RECOMMENDATIONS = {
+      "MRCPCH Exam Preparation": [
+        {
+          course: "Advanced Interview Skills & Mock Examination Sessions",
+          reason: "Perfect your interview skills after passing MRCPCH!",
+          emoji: "🎯",
+          highlight: "94% Success Rate"
+        },
+        {
+          course: "Professional CV and Job Application Enhancement", 
+          reason: "Stand out in pediatric job applications",
+          emoji: "📄",
+          highlight: "Get Noticed"
+        }
+      ],
+      "MRCOG Examination Preparation Programme": [
+        {
+          course: "Advanced Interview Skills & Mock Examination Sessions",
+          reason: "Ace your obstetrics & gynecology interviews!",
+          emoji: "💼",
+          highlight: "Expert Training"
+        },
+        {
+          course: "Comprehensive Mentorship & UK Medical Pathway Guidance",
+          reason: "Navigate your specialist training path",
+          emoji: "🚀",
+          highlight: "Career Guidance"
+        }
+      ],
+      "Advanced Interview Skills & Mock Examination Sessions": [
+        {
+          course: "Professional CV and Job Application Enhancement",
+          reason: "Complete package: Perfect CV + Interview Skills",
+          emoji: "⭐",
+          highlight: "Ultimate Combo"
+        },
+        {
+          course: "Comprehensive Mentorship & UK Medical Pathway Guidance",
+          reason: "Long-term career planning and guidance",
+          emoji: "🎓",
+          highlight: "Ongoing Support"
+        }
+      ],
+      "Comprehensive Mentorship & UK Medical Pathway Guidance": [
+        {
+          course: "MRCPCH Exam Preparation",
+          reason: "Prepare for pediatric specialization",
+          emoji: "👶",
+          highlight: "Top Choice"
+        },
+        {
+          course: "MRCP Examination Preparation Programme",
+          reason: "Excel in internal medicine pathway",
+          emoji: "🏥",
+          highlight: "High Demand"
+        }
+      ],
+      "Professional CV and Job Application Enhancement": [
+        {
+          course: "Advanced Interview Skills & Mock Examination Sessions",
+          reason: "Complete the application process successfully",
+          emoji: "🎯",
+          highlight: "Final Step"
+        },
+        {
+          course: "Comprehensive Mentorship & UK Medical Pathway Guidance",
+          reason: "Strategic career planning beyond applications",
+          emoji: "📈",
+          highlight: "Long-term Success"
+        }
+      ],
+      "MRCP Examination Preparation Programme": [
+        {
+          course: "Advanced Interview Skills & Mock Examination Sessions",
+          reason: "Prepare for internal medicine interviews",
+          emoji: "💡",
+          highlight: "Next Level"
+        },
+        {
+          course: "Comprehensive Mentorship & UK Medical Pathway Guidance",
+          reason: "Navigate complex training pathways",
+          emoji: "🗺️",
+          highlight: "Expert Guidance"
+        }
+      ]
+    };
+
+    const COURSE_DESCRIPTIONS = {
+      "MRCPCH Exam Preparation": {
+        title: "MRCPCH Exam Preparation",
+        description: "Comprehensive preparation for the Membership of the Royal College of Paediatrics and Child Health examination. This intensive course covers all aspects of pediatric medicine with expert guidance.",
+        features: [
+          "Complete syllabus coverage",
+          "Mock examinations & assessments", 
+          "Expert pediatrician guidance",
+          "Clinical scenario practice",
+          "Study materials & resources"
+        ],
+        icon: "medical-icon",
+        stats: {
+          duration: "12 weeks",
+          passRate: "92%",
+          sessions: "48 hours",
+          materials: "Complete"
+        }
+      },
+      "MRCOG Examination Preparation Programme": {
+        title: "MRCOG Exam Preparation",
+        description: "Specialized training for the Membership of the Royal College of Obstetricians and Gynaecologists. Expert-led sessions focusing on obstetrics and gynecology excellence.",
+        features: [
+          "OSCE preparation sessions",
+          "Written paper strategies",
+          "Clinical skills enhancement",
+          "Case study analysis",
+          "Peer learning groups"
+        ],
+        icon: "exam-icon",
+        stats: {
+          duration: "10 weeks", 
+          passRate: "88%",
+          sessions: "40 hours",
+          materials: "Complete"
+        }
+      },
+      "Advanced Interview Skills & Mock Examination Sessions": {
+        title: "Interview Skills & Mock Exams",
+        description: "Master the art of medical interviews with our comprehensive training program. Perfect for job applications, fellowship interviews, and professional assessments.",
+        features: [
+          "1-on-1 mock interviews",
+          "Video analysis & feedback",
+          "Communication skills training",
+          "Confidence building exercises",
+          "Interview technique mastery"
+        ],
+        icon: "interview-icon",
+        stats: {
+          duration: "6 weeks",
+          passRate: "95%", 
+          sessions: "24 hours",
+          materials: "Premium"
+        }
+      },
+      "Comprehensive Mentorship & UK Medical Pathway Guidance": {
+        title: "UK Medical Pathway Mentorship",
+        description: "Complete guidance for international medical graduates navigating the UK healthcare system. From GMC registration to career advancement.",
+        features: [
+          "Personalized career planning",
+          "GMC registration support",
+          "NHS application guidance", 
+          "Specialty training advice",
+          "Long-term mentorship"
+        ],
+        icon: "mentorship-icon",
+        stats: {
+          duration: "6 months",
+          passRate: "98%",
+          sessions: "Individual",
+          materials: "Extensive"
+        }
+      },
+      "Professional CV and Job Application Enhancement": {
+        title: "CV & Application Enhancement", 
+        description: "Transform your medical CV and job applications with professional guidance. Stand out in competitive medical job markets with expert optimization.",
+        features: [
+          "CV restructuring & optimization",
+          "Cover letter crafting",
+          "Application strategy development",
+          "Portfolio enhancement",
+          "Interview preparation"
+        ],
+        icon: "cv-icon",
+        stats: {
+          duration: "4 weeks",
+          passRate: "90%",
+          sessions: "16 hours", 
+          materials: "Templates"
+        }
+      },
+      "MRCP Examination Preparation Programme": {
+        title: "MRCP Exam Preparation",
+        description: "Intensive preparation for the Membership of the Royal Colleges of Physicians examination. Comprehensive coverage of internal medicine with expert instruction.",
+        features: [
+          "Part 1 & Part 2 preparation",
+          "PACES clinical skills",
+          "Comprehensive question banks",
+          "Expert physician mentoring",
+          "Study schedule optimization"
+        ],
+        icon: "internal-icon",
+        stats: {
+          duration: "16 weeks",
+          passRate: "85%",
+          sessions: "64 hours",
+          materials: "Extensive"
+        }
+      }
+    };
+    
+    // Configuration
+    const API_CONFIG = {
+      baseUrl: 'https://api.sheety.co/17eef15acf616d80920db8b74d3afd2d/medicalbuddies/',
+      sheetName: 'φύλλο1'
+    };
+
+    // Requests Database API
+    const REQUESTS_API = {
+      baseUrl: 'https://api.sheety.co/17eef15acf616d80920db8b74d3afd2d/medicalbuddiesDatabase/',
+      sheetName: 'φύλλο1'
+    };
+
+    // Create a booking request entry
+    async function createBookingRequest(customerName, customerEmail, courseName, selectedDate, selectedTime) {
+      try {
+        const addUrl = `${REQUESTS_API.baseUrl}${encodeURIComponent(REQUESTS_API.sheetName)}`;
+        const payload = {
+          [REQUESTS_API.sheetName]: {
+            courseName: courseName,
+            name: customerName,
+            email: customerEmail,
+            date: selectedDate,
+            time: selectedTime
+          }
+        };
+        const response = await fetch(addUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+          console.error('Failed to create booking request:', response.status, response.statusText);
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error('Error creating booking request:', error);
+        return false;
+      }
+    }
+
+    // Function to send booking email via EmailJS
+    async function sendBookingEmail(customerName, customerEmail, courseName, selectedDate, selectedTime) {
+      try {
+        // Format the date to "8/9/2025" format (with quotes)
+        const formattedDate = `"${selectedDate}"`;
+        
+        const result = await emailjs.send("service_dhr76qe", "template_4ckghgu", {
+          name: customerName,        // Customer's name from input
+          course: courseName,        // Course name from the selected course
+          date: formattedDate,       // Date with quotes like "8/9/2025"
+          time: selectedTime,        // Time from dropdown selection
+          email: customerEmail,      // Customer's email from input
+        });
+        
+        console.log('Email sent successfully:', result);
+        return true;
+      } catch (error) {
+        console.error('Error sending email:', error);
+        return false;
+      }
+    }
+
+    // Function to update the spreadsheet when booking is made
+    async function updateSpreadsheetTimeSlot(courseName, selectedDate, selectedTime) {
+      try {
+        // Find the row that matches the course and date
+        const matchingRow = sheetDataStore.find(row => 
+          row.courseName === courseName && 
+          row.date === selectedDate
+        );
+        
+        if (!matchingRow) {
+          console.error('No matching row found for update');
+          return false;
+        }
+        
+        // Get the current available times
+        const currentTimes = matchingRow.availableTimes;
+        
+        // Split by comma and replace the selected time with NONE
+        const timesArray = currentTimes.split(',').map(time => time.trim());
+        const updatedTimesArray = timesArray.map(time => 
+          time === selectedTime ? 'NONE' : time
+        );
+        
+        // Join back with commas
+        const updatedTimes = updatedTimesArray.join(',');
+        
+        // Construct the API URL with the row ID
+        const updateUrl = `${API_CONFIG.baseUrl}${encodeURIComponent(API_CONFIG.sheetName)}/${matchingRow.id}`;
+        
+        // Prepare the update data
+        const updateData = {
+          [API_CONFIG.sheetName]: {
+            availableTimes: updatedTimes
+          }
+        };
+        
+        console.log('Updating spreadsheet:', updateUrl, updateData);
+        
+        // Make the PUT request to update the row
+        const response = await fetch(updateUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updateData)
+        });
+        
+        if (response.ok) {
+          console.log('Spreadsheet updated successfully');
+          // Update our local data store
+          matchingRow.availableTimes = updatedTimes;
+          return true;
+        } else {
+          console.error('Failed to update spreadsheet:', response.status, response.statusText);
+          return false;
+        }
+        
+      } catch (error) {
+        console.error('Error updating spreadsheet:', error);
+        return false;
+      }
+    }
+
+    async function fetchSheetData() {
+      try {
+        const url = `${API_CONFIG.baseUrl}${encodeURIComponent(API_CONFIG.sheetName)}`;
+        console.log(`Fetching data from: ${url}`);
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('Successfully fetched data');
+        
+        // Get the rows from the sheet
+        const rows = data[API_CONFIG.sheetName] || [];
+        return rows;
+      } catch (error) {
+        console.error('Error fetching sheet data:', error);
+        throw error;
+      }
+    }
+
+    function processSheetData(rows) {
+      // Store the original data for tracking row IDs
+      sheetDataStore = rows;
+      
+      // Initialize courseData for all predefined courses
+      COURSES.forEach(courseName => {
+        courseData[courseName] = {
+          name: courseName,
+          schedule: []
+        };
+      });
+      
+      console.log(`Processing ${rows.length} total rows`);
+      
+      rows.forEach(row => {
+        // Extract ONLY the 3 variables we care about
+        const courseName = row['courseName'];
+        const date = row['date'];
+        const availableTimes = row['availableTimes'];
+        
+        // Skip rows where ANY of the 3 required fields are missing, empty, or "NONE"
+        if (!courseName || !date || !availableTimes || 
+            courseName.trim() === '' || 
+            date.trim() === '' || 
+            availableTimes.trim() === '' ||
+            date === 'NONE' ||
+            availableTimes === 'NONE') {
+          return; // Skip this row
+        }
+        
+        // Only process if this is one of our predefined courses
+        if (!COURSES.includes(courseName)) {
+          return; // Skip courses not in our predefined list
+        }
+        
+        // Split available times by comma and clean them up
+        const timesList = availableTimes.split(',').map(time => time.trim()).filter(time => time && time !== 'NONE');
+        
+        // Only add if we have valid times after filtering NONE values
+        if (timesList.length > 0) {
+          // Check if this date already exists for this course
+          const existingDateEntry = courseData[courseName].schedule.find(entry => entry.date === date);
+          
+          if (existingDateEntry) {
+            // Add times to existing date, avoiding duplicates
+            timesList.forEach(time => {
+              if (!existingDateEntry.times.includes(time)) {
+                existingDateEntry.times.push(time);
+              }
+            });
+          } else {
+            // Create new date entry
+            courseData[courseName].schedule.push({
+              date: date,
+              times: timesList
+            });
+          }
+          
+          console.log(`Added to ${courseName}: ${date} with available times [${timesList.join(', ')}]`);
+        }
+      });
+      
+      console.log('Final processed course data:', courseData);
+      return courseData;
+    }
+
+    function createCourseCards() {
+      const tabContents = document.getElementById('tabContents');
+      tabContents.innerHTML = '';
+      
+      COURSES.forEach((courseName, index) => {
+        const course = courseData[courseName];
+        const description = COURSE_DESCRIPTIONS[courseName];
+        
+        // Create tab content
+        const tabContent = document.createElement('div');
+        tabContent.className = `tab-content ${index === 0 ? 'active' : ''}`;
+        tabContent.id = `tab-${index}`;
+        
+        // Create layout with booking card and description
+        tabContent.innerHTML = `
+          <div class="course-booking-section">
+            ${createBookingCardHTML(course)}
+          </div>
+          <div class="course-description-section">
+            ${createDescriptionCardHTML(description, course)}
+          </div>
+        `;
+        
+        tabContents.appendChild(tabContent);
+      });
+    }
+
+    function createBookingCardHTML(course) {
+      const totalDates = course.schedule.length;
+      const totalSlots = course.schedule.reduce((total, entry) => total + entry.times.length, 0);
+      
+      return `
+        <div class="bg-white p-6 rounded-lg shadow-lg course-card" data-course="${course.name}">
+          <div class="text-center">
+            <h4 class="text-xl font-bold text-[var(--primary-blue)] mb-3">${course.name}</h4>
+            <div class="stats-grid mb-4">
+              <div class="bg-red-50 p-3 rounded text-center">
+                <div class="text-2xl font-bold text-[var(--primary-red)]">${totalDates}</div>
+                <div class="text-xs text-gray-600">Available Dates</div>
+              </div>
+              <div class="bg-blue-50 p-3 rounded text-center">
+                <div class="text-2xl font-bold text-[var(--primary-blue)]">${totalSlots}</div>
+                <div class="text-xs text-gray-600">Time Slots</div>
+              </div>
+            </div>
+            <div class="mb-4">
+              <h5 class="font-semibold text-gray-700 mb-2">Upcoming Sessions:</h5>
+              <div class="text-sm text-gray-600 max-h-32 overflow-y-auto">
+                ${totalDates === 0 ? '<p class="text-gray-500">No dates available yet</p>' : 
+                  course.schedule.slice(0, 3).map(entry => `
+                    <div class="mb-1 p-2 bg-gray-50 rounded">
+                      <strong class="text-[var(--primary-red)]">${entry.date}:</strong> ${entry.times.length} slot${entry.times.length > 1 ? 's' : ''} available
+                    </div>
+                  `).join('')}
+                ${course.schedule.length > 3 ? `<div class="text-gray-500 mt-2">...and ${course.schedule.length - 3} more dates</div>` : ''}
+              </div>
+            </div>
+            <button class="book-btn bg-[var(--primary-red)] text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-600 transition-colors w-full" ${totalDates === 0 ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>
+              ${totalDates === 0 ? 'No Dates Available' : 'Book This Course'}
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function createDescriptionCardHTML(description, course) {
+      const totalSlots = course.schedule.reduce((total, entry) => total + entry.times.length, 0);
+      const progressPercentage = Math.min((totalSlots / 50) * 100, 100); // Assume max 50 slots for full progress
+      
+      return `
+        <div class="description-card">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="icon-shape ${description.icon}">
+              <span class="text-white">🎓</span>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold mb-2">${description.title}</h3>
+              <p class="text-white/90 text-sm leading-relaxed">${description.description}</p>
+            </div>
+          </div>
+          
+          <div class="stats-grid mb-4">
+            <div class="stat-item">
+              <div class="text-lg font-bold">${description.stats.duration}</div>
+              <div class="text-xs opacity-80">Duration</div>
+            </div>
+            <div class="stat-item">
+              <div class="text-lg font-bold">${description.stats.passRate}</div>
+              <div class="text-xs opacity-80">Pass Rate</div>
+            </div>
+            <div class="stat-item">
+              <div class="text-lg font-bold">${description.stats.sessions}</div>
+              <div class="text-xs opacity-80">Sessions</div>
+            </div>
+            <div class="stat-item">
+              <div class="text-lg font-bold">${description.stats.materials}</div>
+              <div class="text-xs opacity-80">Materials</div>
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <h4 class="font-semibold mb-2">Course Features:</h4>
+            <ul class="text-sm space-y-1">
+              ${description.features.map(feature => `
+                <li class="flex items-center gap-2">
+                  <span class="text-green-300">✓</span>
+                  <span class="text-white/90">${feature}</span>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+          
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <svg class="progress-ring" width="80" height="80">
+                <circle class="progress-ring__circle" stroke="rgba(255,255,255,0.3)" stroke-width="4" fill="transparent" r="30" cx="40" cy="40"/>
+                <circle class="progress-ring__progress" stroke="white" stroke-width="4" fill="transparent" r="30" cx="40" cy="40" 
+                        style="stroke-dasharray: 188.5; stroke-dashoffset: ${188.5 - (188.5 * progressPercentage) / 100}"/>
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center text-white font-bold text-sm">
+                ${Math.round(progressPercentage)}%
+              </div>
+            </div>
+            <div class="text-sm">
+              <div class="font-semibold">Availability</div>
+              <div class="text-white/80">${totalSlots} slots available</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function showTab(index) {
+      // Update tab buttons
+      document.querySelectorAll('.tab-button').forEach((btn, i) => {
+        if (i === index) {
+          btn.className = 'tab-button px-3 py-2 rounded-t-lg font-semibold text-xs active';
+        } else {
+          btn.className = 'tab-button px-3 py-2 rounded-t-lg font-semibold text-xs bg-gray-200 text-gray-700 hover:bg-gray-300';
+        }
+      });
+      
+      // Update tab contents
+      document.querySelectorAll('.tab-content').forEach((content, i) => {
+        content.className = `tab-content ${i === index ? 'active' : ''}`;
+      });
+    }
+
+    function showLoadingModal() {
+      document.getElementById('loadingModal').classList.remove('hidden');
+    }
+
+    function hideLoadingModal() {
+      document.getElementById('loadingModal').classList.add('hidden');
+    }
+
+    function showPaymentModal(courseName, date, time, name, email) {
+      const paymentModal = document.getElementById('paymentModal');
+      const paymentCourseName = document.getElementById('paymentCourseName');
+      const paymentDate = document.getElementById('paymentDate');
+      const paymentTime = document.getElementById('paymentTime');
+      const paymentCustomerName = document.getElementById('paymentCustomerName');
+      const paymentCustomerEmail = document.getElementById('paymentCustomerEmail');
+      const paymentButton = document.getElementById('paymentButton');
+      const recommendationsContainer = document.getElementById('recommendationsContainer');
+      
+      // Set the booking details
+      paymentCourseName.textContent = courseName;
+      paymentDate.textContent = date;
+      paymentTime.textContent = time;
+      paymentCustomerName.textContent = name;
+      paymentCustomerEmail.textContent = email;
+      
+      // Create PayPal button for the current course
+      const paypalId = PAYPAL_IDS[courseName];
+      paymentButton.innerHTML = `<paypal-add-to-cart-button data-id="${paypalId}"></paypal-add-to-cart-button>`;
+      
+      // Initialize PayPal button
+      cartPaypal.AddToCart({ 
+        id: paypalId,
+        onComplete: function() {
+          console.log('PayPal add to cart completed for:', courseName);
+        }
+      });
+
+      // Generate recommendations
+      const recommendations = COURSE_RECOMMENDATIONS[courseName] || [];
+      recommendationsContainer.innerHTML = recommendations.map(rec => `
+        <div class="recommendation-card pulse-animation" onclick="openCourseBooking('${rec.course}')">
+          <div class="flex items-center justify-between text-white">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-2xl">${rec.emoji}</span>
+                <span class="font-bold text-sm">${rec.highlight}</span>
+              </div>
+              <h6 class="font-semibold text-sm mb-1">${COURSE_DESCRIPTIONS[rec.course]?.title || rec.course}</h6>
+              <p class="text-xs opacity-90">${rec.reason}</p>
+            </div>
+            <div class="ml-3">
+              <button class="bg-white text-[var(--primary-red)] px-3 py-1 rounded-full text-xs font-bold hover:bg-gray-100 transition-colors">
+                Book Now →
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      // Show the payment modal
+      paymentModal.classList.remove('hidden');
+    }
+
+    function openCourseBooking(courseName) {
+      // Close payment modal
+      document.getElementById('paymentModal').classList.add('hidden');
+      
+      // Find the course tab index
+      const courseIndex = COURSES.indexOf(courseName);
+      if (courseIndex !== -1) {
+        // Switch to the course tab
+        showTab(courseIndex);
+        
+        // Scroll to the top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // After a short delay, open the booking modal for that course
+        setTimeout(() => {
+          const course = courseData[courseName];
+          if (course && course.schedule.length > 0) {
+            // Trigger the booking modal
+            const bookEvent = new CustomEvent('click');
+            const courseCard = document.querySelector(`[data-course="${courseName}"] .book-btn`);
+            if (courseCard && !courseCard.disabled) {
+              courseCard.dispatchEvent(bookEvent);
+            }
+          }
+        }, 500);
+      }
+    }
+
+    function setupBookingModal() {
+      const modal = document.getElementById('bookingModal');
+      const dateSelect = document.getElementById('dateSelect');
+      const timeSelect = document.getElementById('timeSelect');
+      const customerName = document.getElementById('customerName');
+      const customerEmail = document.getElementById('customerEmail');
+      const modalCourseName = document.getElementById('modalCourseName');
+      const confirmBookingBtn = document.getElementById('confirmBooking');
+
+      // Event delegation for dynamically created book buttons
+      document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('book-btn') && !e.target.disabled) {
+          const courseCard = e.target.closest('.course-card');
+          const courseName = courseCard.getAttribute('data-course');
+          const course = courseData[courseName];
+          
+          if (!course || course.schedule.length === 0) {
+            alert('No dates available for this course');
+            return;
+          }
+          
+          modalCourseName.textContent = courseName;
+          
+          // Populate dates dropdown
+          dateSelect.innerHTML = '<option value="">Choose a date...</option>';
+          
+          // Sort schedule by date and populate dropdown
+          course.schedule.sort((a, b) => new Date(a.date) - new Date(b.date));
+          course.schedule.forEach(entry => {
+            const option = document.createElement('option');
+            option.value = entry.date;
+            option.textContent = entry.date;
+            dateSelect.appendChild(option);
+          });
+          
+          // Clear times dropdown and form fields
+          timeSelect.innerHTML = '<option value="">Choose a time...</option>';
+          customerName.value = '';
+          customerEmail.value = '';
+          
+          modal.classList.remove('hidden');
+        }
+      });
+
+      // When date is selected, populate times for that specific date
+      dateSelect.addEventListener('change', () => {
+        const courseName = modalCourseName.textContent;
+        const course = courseData[courseName];
+        const selectedDate = dateSelect.value;
+        
+        timeSelect.innerHTML = '<option value="">Choose a time...</option>';
+        
+        if (selectedDate && course) {
+          // Find the schedule entry for the selected date
+          const scheduleEntry = course.schedule.find(entry => entry.date === selectedDate);
+          
+          if (scheduleEntry && scheduleEntry.times) {
+            // Create one dropdown option for each available time
+            scheduleEntry.times.forEach(time => {
+              const option = document.createElement('option');
+              option.value = time;
+              option.textContent = time;
+              timeSelect.appendChild(option);
+            });
+          }
+        }
+      });
+
+      document.getElementById('closeModal').addEventListener('click', () => {
+        modal.classList.add('hidden');
+      });
+
+      confirmBookingBtn.addEventListener('click', async () => {
+        const courseName = modalCourseName.textContent;
+        const date = dateSelect.value;
+        const time = timeSelect.value;
+        const name = customerName.value.trim();
+        const email = customerEmail.value.trim();
+        
+        if (!courseName || !date || !time) {
+          alert('Please select a valid date and time.');
+          return;
+        }
+        
+        if (!name) {
+          alert('Please enter your name.');
+          return;
+        }
+        
+        if (!email) {
+          alert('Please enter your email address.');
+          return;
+        }
+        
+        // Disable the confirm button and show loading
+        confirmBookingBtn.disabled = true;
+        confirmBookingBtn.textContent = 'Processing...';
+        confirmBookingBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        
+        // Show loading modal
+        showLoadingModal();
+        
+        try {
+          // Send email via EmailJS with customer's actual inputs
+          const emailSent = await sendBookingEmail(name, email, courseName, date, time);
+          
+          // Always create a booking request entry for admin approval
+          const requestCreated = await createBookingRequest(name, email, courseName, date, time);
+          
+          if (emailSent && requestCreated) {
+            // Do NOT directly update availability. Await admin approval.
+            // Store booking details for payment step
+            currentBookingDetails = { courseName, date, time, name, email };
+            
+            // Hide loading modal
+            hideLoadingModal();
+            
+            // Close booking modal
+            modal.classList.add('hidden');
+            
+            // Show payment modal with recommendations
+            showPaymentModal(courseName, date, time, name, email);
+          } else {
+            hideLoadingModal();
+            alert('There was an error processing your booking request. Please try again.');
+          }
+        } catch (error) {
+          hideLoadingModal();
+          console.error('Booking error:', error);
+          alert('There was an error processing your booking. Please try again.');
+        } finally {
+          // Re-enable the confirm button
+          confirmBookingBtn.disabled = false;
+          confirmBookingBtn.textContent = 'Confirm Booking';
+          confirmBookingBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+      });
+
+      // Close modal when clicking outside
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.add('hidden');
+        }
+      });
+    }
+
+    function setupPaymentModal() {
+      const paymentModal = document.getElementById('paymentModal');
+      
+      document.getElementById('closePaymentModal').addEventListener('click', () => {
+        paymentModal.classList.add('hidden');
+        currentBookingDetails = null; // Clear booking details if closed
+      });
+
+      // Close modal when clicking outside
+      paymentModal.addEventListener('click', (e) => {
+        if (e.target === paymentModal) {
+          paymentModal.classList.add('hidden');
+          currentBookingDetails = null; // Clear booking details if closed
+        }
+      });
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      const errorText = document.getElementById('errorText');
+      
+      errorText.textContent = message;
+      errorDiv.classList.remove('hidden');
+      
+      document.getElementById('loadingIndicator').classList.add('hidden');
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingIndicator').classList.add('hidden');
+      document.getElementById('courseTabs').classList.remove('hidden');
+    }
+
+    // Initialize the application
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        console.log('Starting application...');
+        
+        // Initialize PayPal cart button
+        cartPaypal.Cart({ id: "pp-view-cart" });
+        
+        const rows = await fetchSheetData();
+        
+        if (!rows || rows.length === 0) {
+          showError('No data found in the spreadsheet.');
+          return;
+        }
+        
+        processSheetData(rows);
+        createCourseCards();
+        setupBookingModal();
+        setupPaymentModal();
+        hideLoading();
+        
+        console.log('Application initialized successfully');
+        
+      } catch (error) {
+        console.error('Error initializing application:', error);
+        showError(`Failed to load course data: ${error.message}`);
+      }
+    });
+  </script>
+</body>
+</html>

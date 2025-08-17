@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Availability Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --primary-red: #e63946;
+      --primary-blue: #21273C;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div class="max-w-3xl mx-auto p-4">
+    <h1 class="text-2xl font-bold text-[var(--primary-blue)] mb-4">Availability & Requests Admin</h1>
+
+    <!-- Availability registration -->
+    <section class="bg-white rounded-md shadow p-4 mb-6">
+      <h2 class="text-lg font-semibold mb-3">Add Available Hours</h2>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-medium mb-1">Select Person</label>
+          <select id="personSelect" class="w-full border rounded px-3 py-2">
+            <option value="Eleni">Eleni</option>
+            <option value="Firas">Firas</option>
+            <option value="Kyra">Kyra</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Select Date</label>
+          <input id="dateInput" type="date" class="w-full border rounded px-3 py-2" />
+          <p id="datePreview" class="text-xs text-gray-500 mt-1"></p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Available Times (comma-separated)</label>
+          <input id="timesInput" type="text" placeholder="hh:mm,hh:mm" class="w-full border rounded px-3 py-2" />
+        </div>
+      </div>
+      <div class="mt-4 flex gap-2">
+        <button id="confirmAvailability" class="bg-[var(--primary-red)] text-white px-4 py-2 rounded font-semibold hover:bg-red-600">Confirm</button>
+        <button id="refreshRequestsTop" class="border px-4 py-2 rounded hover:bg-gray-50">Refresh Requests</button>
+      </div>
+      <div id="availabilityResult" class="mt-3 text-sm"></div>
+    </section>
+
+    <!-- Requests queue -->
+    <section class="bg-white rounded-md shadow p-4">
+      <h2 class="text-lg font-semibold mb-3">Pending Booking Requests</h2>
+      <div id="requestsContainer" class="space-y-3"></div>
+      <div class="mt-3">
+        <button id="refreshRequests" class="border px-4 py-2 rounded hover:bg-gray-50">Refresh</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const AVAILABILITY_API = {
+      baseUrl: 'https://api.sheety.co/17eef15acf616d80920db8b74d3afd2d/medicalbuddies/',
+      sheetName: 'φύλλο1'
+    };
+
+    const REQUESTS_API = {
+      baseUrl: 'https://api.sheety.co/17eef15acf616d80920db8b74d3afd2d/medicalbuddiesDatabase/',
+      sheetName: 'φύλλο1'
+    };
+
+    // Optional Bearer token. Leave empty if not required
+    const SHEETY_TOKEN = '';
+
+    const PERSON_TO_COURSES = {
+      'Eleni': ['MRCPCH Exam Preparation'],
+      'Firas': ['MRCOG Examination Preparation Programme'],
+      'Kyra': [
+        'Advanced Interview Skills & Mock Examination Sessions',
+        'Comprehensive Mentorship & UK Medical Pathway Guidance',
+        'Professional CV and Job Application Enhancement',
+        'MRCP Examination Preparation Programme'
+      ]
+    };
+
+    function authHeaders(base = {}) {
+      const headers = { ...base };
+      if (SHEETY_TOKEN) headers['Authorization'] = `Bearer ${SHEETY_TOKEN}`;
+      return headers;
+    }
+
+    function formatToMDY(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      if (Number.isNaN(d.getTime())) return dateStr;
+      return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`; // x/x/x
+    }
+
+    async function fetchAvailabilityRows() {
+      const url = `${AVAILABILITY_API.baseUrl}${encodeURIComponent(AVAILABILITY_API.sheetName)}`;
+      const res = await fetch(url, { headers: authHeaders() });
+      if (!res.ok) throw new Error(`Availability fetch failed: ${res.status}`);
+      const data = await res.json();
+      return data[AVAILABILITY_API.sheetName] || [];
+    }
+
+    async function updateAvailabilityRow(rowId, updates) {
+      const url = `${AVAILABILITY_API.baseUrl}${encodeURIComponent(AVAILABILITY_API.sheetName)}/${rowId}`;
+      const body = { [AVAILABILITY_API.sheetName]: updates };
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error(`Availability update failed: ${res.status}`);
+      return res.json();
+    }
+
+    async function fetchRequests() {
+      const url = `${REQUESTS_API.baseUrl}${encodeURIComponent(REQUESTS_API.sheetName)}`;
+      const res = await fetch(url, { headers: authHeaders() });
+      if (!res.ok) throw new Error(`Requests fetch failed: ${res.status}`);
+      const data = await res.json();
+      return data[REQUESTS_API.sheetName] || [];
+    }
+
+    async function deleteRequest(id) {
+      const url = `${REQUESTS_API.baseUrl}${encodeURIComponent(REQUESTS_API.sheetName)}/${id}`;
+      const res = await fetch(url, { method: 'DELETE', headers: authHeaders() });
+      if (!res.ok) throw new Error(`Request delete failed: ${res.status}`);
+    }
+
+    async function approveRequest(requestObj) {
+      // Reserve slot: find row by course + date; replace selected time with NONE
+      const courseName = requestObj.courseName;
+      const date = requestObj.date;
+      const selectedTimes = String(requestObj.time || '').split(',').map(t => t.trim()).filter(Boolean);
+      const rows = await fetchAvailabilityRows();
+      const match = rows.find(r => r.courseName === courseName && r.date === date);
+      if (!match) throw new Error('No matching availability row for course/date');
+
+      const timesStr = String(match.availableTimes || '').split(',').map(t => t.trim()).filter(Boolean).join(',');
+      let times = timesStr ? timesStr.split(',').map(t => t.trim()) : [];
+      if (!times.length) throw new Error('No available times on selected date');
+
+      let changed = false;
+      times = times.map(t => {
+        if (selectedTimes.includes(t)) { changed = true; return 'NONE'; }
+        return t;
+      });
+      if (!changed) throw new Error('Selected time not found in availability');
+
+      await updateAvailabilityRow(match.id, { availableTimes: times.join(',') });
+      await deleteRequest(requestObj.id);
+    }
+
+    function renderRequests(list) {
+      const container = document.getElementById('requestsContainer');
+      container.innerHTML = '';
+      if (!list.length) {
+        container.innerHTML = '<div class="text-sm text-gray-600">No pending requests.</div>';
+        return;
+      }
+      list.forEach(req => {
+        const card = document.createElement('div');
+        card.className = 'border rounded p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3';
+        card.innerHTML = `
+          <div class="text-sm">
+            <div><span class="font-semibold">Course:</span> ${req.courseName || ''}</div>
+            <div><span class="font-semibold">Name:</span> ${req.name || ''} &lt;${req.email || ''}&gt;</div>
+            <div><span class="font-semibold">Date:</span> ${req.date || ''}</div>
+            <div><span class="font-semibold">Time:</span> ${req.time || ''}</div>
+            <div class="text-xs text-gray-500">Request ID: ${req.id}</div>
+          </div>
+          <div class="flex gap-2">
+            <button class="approveBtn bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">Approve</button>
+            <button class="declineBtn border px-3 py-1 rounded text-sm hover:bg-gray-50">Decline</button>
+          </div>
+        `;
+        card.querySelector('.approveBtn').addEventListener('click', async () => {
+          card.querySelector('.approveBtn').disabled = true;
+          try {
+            await approveRequest(req);
+            await loadRequests();
+          } catch (e) {
+            alert(`Approve failed: ${e.message}`);
+            card.querySelector('.approveBtn').disabled = false;
+          }
+        });
+        card.querySelector('.declineBtn').addEventListener('click', async () => {
+          card.querySelector('.declineBtn').disabled = true;
+          try {
+            await deleteRequest(req.id);
+            await loadRequests();
+          } catch (e) {
+            alert(`Decline failed: ${e.message}`);
+            card.querySelector('.declineBtn').disabled = false;
+          }
+        });
+        container.appendChild(card);
+      });
+    }
+
+    async function loadRequests() {
+      try {
+        const list = await fetchRequests();
+        renderRequests(list);
+      } catch (e) {
+        const container = document.getElementById('requestsContainer');
+        container.innerHTML = `<div class="text-sm text-red-600">Failed to load requests: ${e.message}</div>`;
+      }
+    }
+
+    async function handleConfirmAvailability() {
+      const person = document.getElementById('personSelect').value;
+      const dateRaw = document.getElementById('dateInput').value;
+      const timesRaw = document.getElementById('timesInput').value.trim();
+      const result = document.getElementById('availabilityResult');
+      result.textContent = '';
+
+      if (!dateRaw || !timesRaw) {
+        result.textContent = 'Please select a date and enter times.';
+        result.className = 'mt-3 text-sm text-red-600';
+        return;
+      }
+
+      const date = formatToMDY(dateRaw);
+      const times = timesRaw.split(',').map(t => t.trim()).filter(Boolean).join(',');
+
+      const targetCourses = PERSON_TO_COURSES[person] || [];
+      if (!targetCourses.length) {
+        result.textContent = 'No target courses mapped for selected person.';
+        result.className = 'mt-3 text-sm text-red-600';
+        return;
+      }
+
+      try {
+        const rows = await fetchAvailabilityRows();
+        const updates = [];
+        for (const courseName of targetCourses) {
+          const emptyRow = rows.find(r => r.courseName === courseName && (!r.date || r.date.trim() === '' || r.date === 'NONE'));
+          if (!emptyRow) {
+            updates.push({ courseName, status: 'No empty row found' });
+            continue;
+          }
+          await updateAvailabilityRow(emptyRow.id, { date, availableTimes: times });
+          updates.push({ courseName, status: 'Updated' });
+        }
+        const ok = updates.filter(u => u.status === 'Updated').map(u => u.courseName).join(', ');
+        const not = updates.filter(u => u.status !== 'Updated').map(u => `${u.courseName} (${u.status})`).join(', ');
+        result.className = 'mt-3 text-sm';
+        result.innerHTML = `
+          <div class="text-green-700">Updated: ${ok || 'None'}</div>
+          ${not ? `<div class="text-gray-600">Skipped: ${not}</div>` : ''}
+        `;
+      } catch (e) {
+        result.textContent = `Failed: ${e.message}`;
+        result.className = 'mt-3 text-sm text-red-600';
+      }
+    }
+
+    // UI bindings
+    document.getElementById('confirmAvailability').addEventListener('click', handleConfirmAvailability);
+    document.getElementById('refreshRequests').addEventListener('click', loadRequests);
+    document.getElementById('refreshRequestsTop').addEventListener('click', loadRequests);
+    document.getElementById('dateInput').addEventListener('change', () => {
+      document.getElementById('datePreview').textContent = `Selected: ${formatToMDY(document.getElementById('dateInput').value)}`;
+    });
+
+    // Initial load
+    loadRequests();
+  </script>
+</body>
+</html>
