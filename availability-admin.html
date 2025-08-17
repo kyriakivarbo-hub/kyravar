@@ -45,6 +45,34 @@
       <div id="availabilityResult" class="mt-3 text-sm"></div>
     </section>
 
+    <!-- Delete specific time(s) from availability -->
+    <section class="bg-white rounded-md shadow p-4 mb-6">
+      <h2 class="text-lg font-semibold mb-3">Delete Time From Availability</h2>
+      <div class="grid gap-3 sm:grid-cols-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">Select Person</label>
+          <select id="personSelectDelete" class="w-full border rounded px-3 py-2">
+            <option value="Eleni">Eleni</option>
+            <option value="Firas">Firas</option>
+            <option value="Kyra">Kyra</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Select Date</label>
+          <input id="dateInputDelete" type="date" class="w-full border rounded px-3 py-2" />
+          <p id="datePreviewDelete" class="text-xs text-gray-500 mt-1"></p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Time(s) to delete (comma-separated)</label>
+          <input id="timesInputDelete" type="text" placeholder="hh:mm,hh:mm" class="w-full border rounded px-3 py-2" />
+        </div>
+      </div>
+      <div class="mt-4 flex gap-2">
+        <button id="confirmDeleteTimes" class="border px-4 py-2 rounded hover:bg-gray-50">Delete Times</button>
+      </div>
+      <div id="deleteResult" class="mt-3 text-sm"></div>
+    </section>
+
     <!-- Requests queue -->
     <section class="bg-white rounded-md shadow p-4">
       <h2 class="text-lg font-semibold mb-3">Pending Booking Requests</h2>
@@ -94,8 +122,8 @@
     }
 
     async function fetchAvailabilityRows() {
-      const url = `${AVAILABILITY_API.baseUrl}${encodeURIComponent(AVAILABILITY_API.sheetName)}`;
-      const res = await fetch(url, { headers: authHeaders() });
+      const url = `${AVAILABILITY_API.baseUrl}${encodeURIComponent(AVAILABILITY_API.sheetName)}?t=${Date.now()}`;
+      const res = await fetch(url, { headers: authHeaders(), cache: 'no-store' });
       if (!res.ok) throw new Error(`Availability fetch failed: ${res.status}`);
       const data = await res.json();
       return data[AVAILABILITY_API.sheetName] || [];
@@ -103,10 +131,10 @@
 
     async function updateAvailabilityRow(rowId, updates) {
       const url = `${AVAILABILITY_API.baseUrl}${encodeURIComponent(AVAILABILITY_API.sheetName)}/${rowId}`;
-      const body = { [AVAILABILITY_API.sheetName]: updates };
+      const body = { [AVAILABILITY_API.sheetName]: updates, updatedAt: new Date().toISOString() };
       const res = await fetch(url, {
         method: 'PUT',
-        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        headers: authHeaders({ 'Content-Type': 'application/json', 'Accept': 'application/json' }),
         body: JSON.stringify(body)
       });
       if (!res.ok) throw new Error(`Availability update failed: ${res.status}`);
@@ -114,11 +142,15 @@
     }
 
     async function fetchRequests() {
-      const url = `${REQUESTS_API.baseUrl}${encodeURIComponent(REQUESTS_API.sheetName)}`;
-      const res = await fetch(url, { headers: authHeaders() });
+      const url = `${REQUESTS_API.baseUrl}${encodeURIComponent(REQUESTS_API.sheetName)}?t=${Date.now()}`;
+      const res = await fetch(url, { headers: authHeaders(), cache: 'no-store' });
       if (!res.ok) throw new Error(`Requests fetch failed: ${res.status}`);
       const data = await res.json();
-      return data[REQUESTS_API.sheetName] || [];
+      const value = data[REQUESTS_API.sheetName];
+      if (Array.isArray(value)) return value;
+      // Fallback if Sheety returns a different key casing or structure
+      const firstArray = Object.values(data).find(v => Array.isArray(v));
+      return firstArray || [];
     }
 
     async function deleteRequest(id) {
@@ -159,11 +191,12 @@
         return;
       }
       list.forEach(req => {
+        const courseField = req.courseName || req.course || '';
         const card = document.createElement('div');
         card.className = 'border rounded p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3';
         card.innerHTML = `
           <div class="text-sm">
-            <div><span class="font-semibold">Course:</span> ${req.courseName || ''}</div>
+            <div><span class="font-semibold">Course:</span> ${courseField}</div>
             <div><span class="font-semibold">Name:</span> ${req.name || ''} &lt;${req.email || ''}&gt;</div>
             <div><span class="font-semibold">Date:</span> ${req.date || ''}</div>
             <div><span class="font-semibold">Time:</span> ${req.time || ''}</div>
@@ -177,7 +210,7 @@
         card.querySelector('.approveBtn').addEventListener('click', async () => {
           card.querySelector('.approveBtn').disabled = true;
           try {
-            await approveRequest(req);
+            await approveRequest({ ...req, courseName: courseField });
             await loadRequests();
           } catch (e) {
             alert(`Approve failed: ${e.message}`);
@@ -256,12 +289,76 @@
       }
     }
 
+    async function deleteTimesForPerson() {
+      const person = document.getElementById('personSelectDelete').value;
+      const dateRaw = document.getElementById('dateInputDelete').value;
+      const timesRaw = document.getElementById('timesInputDelete').value.trim();
+      const result = document.getElementById('deleteResult');
+      result.textContent = '';
+
+      if (!dateRaw || !timesRaw) {
+        result.textContent = 'Please select a date and enter times to delete.';
+        result.className = 'mt-3 text-sm text-red-600';
+        return;
+      }
+
+      const date = formatToMDY(dateRaw);
+      const timesToDelete = timesRaw.split(',').map(t => t.trim()).filter(Boolean);
+
+      const targetCourses = PERSON_TO_COURSES[person] || [];
+      if (!targetCourses.length) {
+        result.textContent = 'No target courses mapped for selected person.';
+        result.className = 'mt-3 text-sm text-red-600';
+        return;
+      }
+
+      try {
+        const rows = await fetchAvailabilityRows();
+        const updates = [];
+        for (const courseName of targetCourses) {
+          const row = rows.find(r => r.courseName === courseName && r.date === date);
+          if (!row) {
+            updates.push({ courseName, status: 'No row found for date' });
+            continue;
+          }
+          const currentTimes = String(row.availableTimes || '')
+            .split(',')
+            .map(t => t.trim())
+            .filter(Boolean);
+
+          if (!currentTimes.length) {
+            updates.push({ courseName, status: 'No times to edit' });
+            continue;
+          }
+
+          const newTimes = currentTimes.map(t => (timesToDelete.includes(t) ? 'NONE' : t));
+          await updateAvailabilityRow(row.id, { availableTimes: newTimes.join(',') });
+          updates.push({ courseName, status: 'Updated' });
+        }
+
+        const ok = updates.filter(u => u.status === 'Updated').map(u => u.courseName).join(', ');
+        const not = updates.filter(u => u.status !== 'Updated').map(u => `${u.courseName} (${u.status})`).join(', ');
+        result.className = 'mt-3 text-sm';
+        result.innerHTML = `
+          <div class="text-green-700">Updated: ${ok || 'None'}</div>
+          ${not ? `<div class="text-gray-600">Skipped: ${not}</div>` : ''}
+        `;
+      } catch (e) {
+        result.textContent = `Failed: ${e.message}`;
+        result.className = 'mt-3 text-sm text-red-600';
+      }
+    }
+
     // UI bindings
     document.getElementById('confirmAvailability').addEventListener('click', handleConfirmAvailability);
     document.getElementById('refreshRequests').addEventListener('click', loadRequests);
     document.getElementById('refreshRequestsTop').addEventListener('click', loadRequests);
     document.getElementById('dateInput').addEventListener('change', () => {
       document.getElementById('datePreview').textContent = `Selected: ${formatToMDY(document.getElementById('dateInput').value)}`;
+    });
+    document.getElementById('confirmDeleteTimes').addEventListener('click', deleteTimesForPerson);
+    document.getElementById('dateInputDelete').addEventListener('change', () => {
+      document.getElementById('datePreviewDelete').textContent = `Selected: ${formatToMDY(document.getElementById('dateInputDelete').value)}`;
     });
 
     // Initial load

@@ -581,13 +581,17 @@
       sheetName: 'φύλλο1'
     };
 
+    function requestSheetKeyName() {
+      return REQUESTS_API.sheetName;
+    }
+
     // Create a booking request entry
     async function createBookingRequest(customerName, customerEmail, courseName, selectedDate, selectedTime) {
       try {
         const addUrl = `${REQUESTS_API.baseUrl}${encodeURIComponent(REQUESTS_API.sheetName)}`;
         const payload = {
-          [REQUESTS_API.sheetName]: {
-            courseName: courseName,
+          [requestSheetKeyName()]: {
+            course: courseName,
             name: customerName,
             email: customerEmail,
             date: selectedDate,
@@ -596,14 +600,17 @@
         };
         const response = await fetch(addUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify(payload)
         });
         if (!response.ok) {
-          console.error('Failed to create booking request:', response.status, response.statusText);
+          const text = await response.text().catch(() => '');
+          console.error('Failed to create booking request:', response.status, response.statusText, text);
           return false;
         }
-        return true;
+        const json = await response.json().catch(() => ({}));
+        // Sheety returns created row; validate minimally
+        return Boolean(json);
       } catch (error) {
         console.error('Error creating booking request:', error);
         return false;
@@ -1127,26 +1134,32 @@
         try {
           // Send email via EmailJS with customer's actual inputs
           const emailSent = await sendBookingEmail(name, email, courseName, date, time);
-          
-          // Always create a booking request entry for admin approval
-          const requestCreated = await createBookingRequest(name, email, courseName, date, time);
-          
-          if (emailSent && requestCreated) {
-            // Do NOT directly update availability. Await admin approval.
-            // Store booking details for payment step
-            currentBookingDetails = { courseName, date, time, name, email };
-            
-            // Hide loading modal
-            hideLoadingModal();
-            
-            // Close booking modal
-            modal.classList.add('hidden');
-            
-            // Show payment modal with recommendations
-            showPaymentModal(courseName, date, time, name, email);
-          } else {
-            hideLoadingModal();
-            alert('There was an error processing your booking request. Please try again.');
+
+          // Create booking request entry for admin approval (non-blocking for UX)
+          let requestCreated = false;
+          try {
+            requestCreated = await createBookingRequest(name, email, courseName, date, time);
+          } catch (reqErr) {
+            console.error('Request creation error:', reqErr);
+          }
+
+          // Proceed to payment regardless of request creation outcome
+          currentBookingDetails = { courseName, date, time, name, email };
+
+          // Hide loading modal
+          hideLoadingModal();
+
+          // Close booking modal
+          modal.classList.add('hidden');
+
+          // Show payment modal with recommendations
+          showPaymentModal(courseName, date, time, name, email);
+
+          if (!emailSent) {
+            alert('We could not send a confirmation email, but your booking request was received.');
+          }
+          if (!requestCreated) {
+            console.warn('Booking request logging failed.');
           }
         } catch (error) {
           hideLoadingModal();
