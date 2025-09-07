@@ -5,64 +5,96 @@
   <title>Medicalbuddies — Home</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
     :root {
-      --primary-red: #e63946;
-      --primary-blue: #21273C;
+      --primary-red: #dc2626;
+      --primary-blue: #1e293b;
       --primary-white: #ffffff;
+      --accent-gold: #f59e0b;
+      --text-gray: #64748b;
+      --bg-light: #f8fafc;
     }
+    
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
     .course-card {
-      transition: background-color 0.3s ease;
+      transition: all 0.3s ease;
+      border: 1px solid #e2e8f0;
     }
-    .course-card:hover,
-    .course-card:active {
-      background-color: #e5e7eb;
+    .course-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      border-color: var(--primary-red);
     }
-    .icon-circle {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 20px;
-      height: 20px;
-      border: 1px solid white;
-      border-radius: 50%;
-      font-size: 12px;
-      font-weight: bold;
+    
+    .professional-gradient {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
+    
+    .text-shadow {
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-red) 0%, #b91c1c 100%);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+    }
+    
     .typewriter {
       display: inline-block;
       overflow: hidden;
-      border-right: .15em solid orange;
+      border-right: .15em solid var(--accent-gold);
       white-space: nowrap;
       animation: typing 3s steps(20, end) infinite alternate, blink-caret .75s step-end infinite;
     }
+    
     @keyframes typing {
       from { width: 0 }
       to { width: 100% }
     }
+    
     @keyframes blink-caret {
       from, to { border-color: transparent }
-      50% { border-color: orange; }
+      50% { border-color: var(--accent-gold); }
+    }
+    
+    .professional-card {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
   </style>
 </head>
-<body class="bg-white text-gray-800">
+<body class="bg-white text-slate-700 leading-relaxed">
 
   <!-- Hero -->
-  <section class="relative bg-gray-100">
+  <section class="relative professional-gradient">
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 px-4 py-12 items-center">
       <div>
-        <h2 class="text-3xl font-bold text-[var(--primary-blue)] leading-tight mb-6">
-          One-to-one guidance from doctors in training — because we've been where you are, and we know how to help you get there.
-        </h2>
-        <h4 class="text-xl font-semibold text-[var(--primary-blue)] mb-4">Call to Action</h4>
-        <p class="text-lg text-gray-600 mb-6">
-          ✨ Book your free 10-minute trial chat today — meet your mentor, discuss your goals, and start planning your path to success.
+        <h1 class="text-4xl md:text-5xl font-bold text-white leading-tight mb-6 text-shadow">
+          Expert Medical Mentorship for Your UK Career
+        </h1>
+        <p class="text-xl text-white/90 mb-6 leading-relaxed">
+          One-to-one guidance from experienced doctors in training — because we've been where you are, and we know how to help you succeed.
         </p>
-        <a href="#courses" class="inline-block bg-[var(--primary-red)] text-white px-6 py-3 rounded-md shadow hover:bg-red-600 transition">Explore Courses</a>
+        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-8 border border-white/20">
+          <p class="text-lg text-white/95 mb-4">
+            ✨ <strong>Start with a complimentary 10-minute consultation</strong> — meet your mentor, discuss your goals, and create your personalized success pathway.
+          </p>
+        </div>
+        <a href="#courses" class="btn-primary inline-block text-white px-8 py-4 rounded-lg shadow-lg font-semibold text-lg">Explore Our Programs</a>
       </div>
       <div class="relative h-64 rounded-lg shadow-md overflow-hidden">
         <!-- British Flag Background (Blurred) -->
-        <div class="absolute inset-0 opacity-30">
+        <div class="absolute inset-0 opacity-40">
           <svg viewBox="0 0 60 30" class="w-full h-full object-cover filter blur-sm">
             <clipPath id="t">
               <path d="m30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/>
@@ -76,23 +108,27 @@
         </div>
         <!-- Doctor Image in Center -->
         <div class="absolute inset-0 flex items-center justify-center">
-          <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Professional Doctor" class="w-32 h-32 object-cover rounded-full border-4 border-white shadow-lg">
+          <img src="https://images.unsplash.com/photo-1594824475871-b8ec9c5d8d3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Professional Female Doctor" class="w-36 h-36 object-cover rounded-full border-4 border-white shadow-xl">
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Typing Effect Section -->
-  <section class="py-12 bg-white border-t border-gray-200 text-center">
-    <h2 class="text-3xl font-bold text-[var(--primary-blue)] mb-4">We respect your paychecks,</h2>
-    <div class="typewriter text-xl text-gray-700">Average cost of our courses: £133</div>
+  <!-- Value Proposition Section -->
+  <section class="py-16 bg-slate-50 text-center">
+    <div class="max-w-4xl mx-auto px-4">
+      <h2 class="text-3xl font-bold text-[var(--primary-blue)] mb-6">Exceptional Value, Professional Results</h2>
+      <div class="typewriter text-2xl text-[var(--primary-blue)] font-semibold">Average investment: £133 per program</div>
+      <p class="text-lg text-[var(--text-gray)] mt-6">Professional development that fits your budget, delivered by doctors who understand your journey.</p>
+    </div>
   </section>
 
-  <!-- Meet Our Buddies Section -->
-  <section class="py-12 bg-gray-100">
-    <div class="max-w-5xl mx-auto px-4 bg-white rounded-lg shadow-md p-8">
-      <h2 class="text-3xl font-bold text-center mb-6">Meet our <span class="text-[var(--primary-red)]">Buddies</span></h2>
-      <p class="text-gray-700 leading-relaxed">
+  <!-- Meet Our Team Section -->
+  <section class="py-16 bg-white">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="professional-card rounded-xl shadow-xl p-10">
+      <h2 class="text-4xl font-bold text-center mb-8 text-[var(--primary-blue)]">Meet Our <span class="text-[var(--primary-red)]">Expert Team</span></h2>
+      <div class="prose prose-lg max-w-none text-[var(--text-gray)] leading-relaxed">
         At Medicalbuddies, we understand the challenges and triumphs of moving abroad to build a medical career. As international medical graduates (IMGs) ourselves, we've experienced every step of the journey — from NHS job applications and interviews to adapting to a new healthcare system while preparing for postgraduate exams.
         <br><br>
         Our mission is simple: to empower IMGs through one-to-one mentorship that is personal, practical, and honest. We are not a large agency — we're doctors helping doctors, offering the kind of real-world support we wish we had when we started.
@@ -121,61 +157,97 @@
         ✓ Practical guidance on balancing work and study, drawn from our own experiences
         <br><br>
         To help you get started, we offer a free 10-minute trial chat — an informal meeting with your tutor to discuss your needs and plan the best path forward.
-      </p>
+      </div>
+      </div>
     </div>
   </section>
 
-  <!-- Courses Presentation -->
-  <section id="courses" class="py-12 bg-gray-50">
+  <!-- Professional Programs Section -->
+  <section id="courses" class="py-16 bg-slate-50">
     <div class="max-w-7xl mx-auto px-4">
-      <h3 class="text-3xl font-bold text-center text-[var(--primary-blue)]">Our Courses</h3>
-      <p class="mt-2 text-center text-gray-600">Comprehensive training to help you stand out in the UK medical job market.</p>
+      <div class="text-center mb-12">
+        <h3 class="text-4xl font-bold text-[var(--primary-blue)] mb-4">Professional Development Programs</h3>
+        <p class="text-xl text-[var(--text-gray)] max-w-3xl mx-auto">Comprehensive, evidence-based training designed to accelerate your success in the UK medical landscape.</p>
+      </div>
       <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white p-4 rounded-lg shadow-sm course-card">
-          <h4 class="mt-4 font-semibold">Advanced Interview Skills & Mock Examination Sessions</h4>
-          <p class="mt-2 text-gray-600 text-sm">Practice sessions and feedback to improve your confidence and performance.</p>
-          <p class="text-sm text-gray-600 mt-2">£150</p>
+        <div class="bg-white p-8 rounded-xl shadow-lg course-card">
+          <div class="h-2 bg-gradient-to-r from-red-500 to-red-600 rounded-t-xl -mt-8 -mx-8 mb-6"></div>
+          <h4 class="text-xl font-bold text-[var(--primary-blue)] mb-4">Advanced Interview Skills & Mock Examination Sessions</h4>
+          <p class="text-[var(--text-gray)] mb-6 leading-relaxed">Comprehensive practice sessions with detailed feedback to enhance your confidence and interview performance.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-[var(--primary-red)]">£150</span>
+            <span class="text-sm text-[var(--text-gray)] bg-slate-100 px-3 py-1 rounded-full">Professional</span>
+          </div>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm course-card">
-          <h4 class="mt-4 font-semibold">Comprehensive Mentorship & UK Medical Pathway Guidance</h4>
-          <p class="mt-2 text-gray-600 text-sm">Personalised mentoring to navigate the UK healthcare system and career opportunities.</p>
-          <p class="text-sm text-gray-600 mt-2">£150</p>
+        <div class="bg-white p-8 rounded-xl shadow-lg course-card">
+          <div class="h-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-xl -mt-8 -mx-8 mb-6"></div>
+          <h4 class="text-xl font-bold text-[var(--primary-blue)] mb-4">Comprehensive Mentorship & UK Medical Pathway Guidance</h4>
+          <p class="text-[var(--text-gray)] mb-6 leading-relaxed">Personalized mentoring to strategically navigate the UK healthcare system and optimize career opportunities.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-[var(--primary-red)]">£150</span>
+            <span class="text-sm text-[var(--text-gray)] bg-slate-100 px-3 py-1 rounded-full">Strategic</span>
+          </div>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm course-card">
-          <h4 class="mt-4 font-semibold">Professional CV and Job Application Enhancement</h4>
-          <p class="mt-2 text-gray-600 text-sm">Expert review and optimization of your CV and job applications for NHS roles.</p>
-          <p class="text-sm text-gray-600 mt-2">£150</p>
+        <div class="bg-white p-8 rounded-xl shadow-lg course-card">
+          <div class="h-2 bg-gradient-to-r from-green-500 to-green-600 rounded-t-xl -mt-8 -mx-8 mb-6"></div>
+          <h4 class="text-xl font-bold text-[var(--primary-blue)] mb-4">Professional CV and Job Application Enhancement</h4>
+          <p class="text-[var(--text-gray)] mb-6 leading-relaxed">Expert review and strategic optimization of your CV and applications for competitive NHS positions.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-[var(--primary-red)]">£150</span>
+            <span class="text-sm text-[var(--text-gray)] bg-slate-100 px-3 py-1 rounded-full">Essential</span>
+          </div>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm course-card">
-          <h4 class="mt-4 font-semibold">MRCPCH Examination Preparation Programme</h4>
-          <p class="mt-2 text-gray-600 text-sm">Structured guidance and resources to excel in your MRCPCH examinations.</p>
-          <p class="text-sm text-gray-600 mt-2">£150</p>
+        <div class="bg-white p-8 rounded-xl shadow-lg course-card">
+          <div class="h-2 bg-gradient-to-r from-purple-500 to-purple-600 rounded-t-xl -mt-8 -mx-8 mb-6"></div>
+          <h4 class="text-xl font-bold text-[var(--primary-blue)] mb-4">MRCPCH Examination Preparation Programme</h4>
+          <p class="text-[var(--text-gray)] mb-6 leading-relaxed">Structured, evidence-based preparation with comprehensive resources to excel in your MRCPCH examinations.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-[var(--primary-red)]">£150</span>
+            <span class="text-sm text-[var(--text-gray)] bg-slate-100 px-3 py-1 rounded-full">Specialist</span>
+          </div>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm course-card">
-          <h4 class="mt-4 font-semibold">MRCP Examination Preparation Programme</h4>
-          <p class="mt-2 text-gray-600 text-sm">Comprehensive support to help you succeed in all parts of the MRCP exam.</p>
-          <p class="text-sm text-gray-600 mt-2">£150</p>
+        <div class="bg-white p-8 rounded-xl shadow-lg course-card">
+          <div class="h-2 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-t-xl -mt-8 -mx-8 mb-6"></div>
+          <h4 class="text-xl font-bold text-[var(--primary-blue)] mb-4">MRCP Examination Preparation Programme</h4>
+          <p class="text-[var(--text-gray)] mb-6 leading-relaxed">Comprehensive, systematic support to master all components of the MRCP examination with confidence.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-[var(--primary-red)]">£150</span>
+            <span class="text-sm text-[var(--text-gray)] bg-slate-100 px-3 py-1 rounded-full">Advanced</span>
+          </div>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm course-card">
-          <h4 class="mt-4 font-semibold">MRCOG Examination Preparation Programme</h4>
-          <p class="mt-2 text-gray-600 text-sm">Focused training for each stage of the MRCOG assessment process.</p>
-          <p class="text-sm text-gray-600 mt-2">£150</p>
+        <div class="bg-white p-8 rounded-xl shadow-lg course-card">
+          <div class="h-2 bg-gradient-to-r from-pink-500 to-pink-600 rounded-t-xl -mt-8 -mx-8 mb-6"></div>
+          <h4 class="text-xl font-bold text-[var(--primary-blue)] mb-4">MRCOG Examination Preparation Programme</h4>
+          <p class="text-[var(--text-gray)] mb-6 leading-relaxed">Targeted, comprehensive training for each stage of the MRCOG assessment with expert guidance.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-[var(--primary-red)]">£150</span>
+            <span class="text-sm text-[var(--text-gray)] bg-slate-100 px-3 py-1 rounded-full">Expert</span>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Educational Quote Section -->
-  <section class="py-12 bg-white border-t border-gray-200">
+  <!-- Testimonial Section -->
+  <section class="py-16 bg-white">
     <div class="max-w-4xl mx-auto px-4 text-center">
-      <blockquote class="text-xl italic text-gray-700">"Alone we can do so little; together we can do so much." — Helen Keller</blockquote>
+      <div class="professional-card rounded-xl p-12">
+        <blockquote class="text-2xl italic text-[var(--primary-blue)] font-medium mb-4">"Excellence is never an accident. It is always the result of high intention, sincere effort, and intelligent execution."</blockquote>
+        <cite class="text-[var(--text-gray)] font-semibold">— Aristotle</cite>
+      </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer id="contact" class="bg-[var(--primary-blue)] text-white py-6">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-      <p>&copy; 2025 Medicalbuddies. All rights reserved.</p>
+  <footer id="contact" class="bg-[var(--primary-blue)] text-white py-12">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center">
+        <h3 class="text-2xl font-bold mb-4">Ready to Advance Your Medical Career?</h3>
+        <p class="text-white/80 mb-6 max-w-2xl mx-auto">Join hundreds of international medical graduates who have successfully navigated their UK medical journey with our expert guidance.</p>
+        <div class="border-t border-white/20 pt-6 mt-8">
+          <p class="text-white/60">&copy; 2025 Medicalbuddies. All rights reserved. | Professional Medical Mentorship Services</p>
+        </div>
+      </div>
     </div>
   </footer>
 </body>
