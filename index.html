@@ -1,0 +1,166 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Medicalbuddies — Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --primary-red: #e63946;
+      --primary-blue: #21273C;
+      --primary-white: #ffffff;
+    }
+    .course-card {
+      transition: background-color 0.3s ease;
+    }
+    .course-card:hover,
+    .course-card:active {
+      background-color: #e5e7eb;
+    }
+    .icon-circle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border: 1px solid white;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .typewriter {
+      display: inline-block;
+      overflow: hidden;
+      border-right: .15em solid orange;
+      white-space: nowrap;
+      animation: typing 3s steps(20, end) infinite alternate, blink-caret .75s step-end infinite;
+    }
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+    @keyframes blink-caret {
+      from, to { border-color: transparent }
+      50% { border-color: orange; }
+    }
+  </style>
+</head>
+<body class="bg-white text-gray-800">
+
+  <!-- Hero -->
+  <section class="relative bg-gray-100">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 px-4 py-12 items-center">
+      <div>
+        <h2 class="text-3xl font-bold text-[var(--primary-blue)] leading-tight mb-6">
+          One-to-one guidance from doctors in training — because we've been where you are, and we know how to help you get there.
+        </h2>
+        <h4 class="text-xl font-semibold text-[var(--primary-blue)] mb-4">Call to Action</h4>
+        <p class="text-lg text-gray-600 mb-6">
+          ✨ Book your free 10-minute trial chat today — meet your mentor, discuss your goals, and start planning your path to success.
+        </p>
+        <a href="#courses" class="inline-block bg-[var(--primary-red)] text-white px-6 py-3 rounded-md shadow hover:bg-red-600 transition">Explore Courses</a>
+      </div>
+      <div>
+        <img src="https://i.imghippo.com/files/HsGb6237Wzc.png" alt="Medicalbuddies Hero" class="w-full h-96 object-cover object-center rounded-lg shadow-md">
+      </div>
+    </div>
+  </section>
+
+  <!-- Typing Effect Section -->
+  <section class="py-12 bg-white border-t border-gray-200 text-center">
+    <h2 class="text-3xl font-bold text-[var(--primary-blue)] mb-4">We respect your paychecks,</h2>
+    <div class="typewriter text-xl text-gray-700">Average cost of our courses: £133</div>
+  </section>
+
+  <!-- Meet Our Buddies Section -->
+  <section class="py-12 bg-gray-100">
+    <div class="max-w-5xl mx-auto px-4 bg-white rounded-lg shadow-md p-8">
+      <h2 class="text-3xl font-bold text-center mb-6">Meet our <span class="text-[var(--primary-red)]">Buddies</span></h2>
+      <p class="text-gray-700 leading-relaxed">
+        At Medicalbuddies, we understand the challenges and triumphs of moving abroad to build a medical career. As international medical graduates (IMGs) ourselves, we've experienced every step of the journey — from NHS job applications and interviews to adapting to a new healthcare system while preparing for postgraduate exams.
+        <br><br>
+        Our mission is simple: to empower IMGs through one-to-one mentorship that is personal, practical, and honest. We are not a large agency — we're doctors helping doctors, offering the kind of real-world support we wish we had when we started.
+        <br><br>
+        <strong>Meet the Team</strong>
+        <br><br>
+        <strong>Dr Kyra Varmpompiti (ST4 Neurology, Cambridge)</strong><br>
+        Graduated from the Medical School of Athens, Greece.
+        <br><br>
+        <strong>Dr Eleni Sarridimitriou (ST2 Paediatrics, London)</strong><br>
+        Graduated from the Medical School of Thessaloniki, Greece.
+        <br><br>
+        <strong>Dr Firas Naffa (ST4 Obstetrics & Gynaecology, Cambridge)</strong><br>
+        Graduated from the Medical School in Jordan.
+        <br><br>
+        Together, we bring diverse clinical experience across multiple specialties and regions of the UK, allowing us to support IMGs at all stages — whether you're just starting your journey or preparing for specialty training.
+        <br><br>
+        <strong>What We Offer</strong>
+        <br><br>
+        ✓ One-to-one live sessions tailored to your goals
+        <br><br>
+        ✓ CV reviews and mock interviews for NHS applications
+        <br><br>
+        ✓ Exam preparation with tips and mock practice for MRCP, MRCPCH, and MRCOG
+        <br><br>
+        ✓ Practical guidance on balancing work and study, drawn from our own experiences
+        <br><br>
+        To help you get started, we offer a free 10-minute trial chat — an informal meeting with your tutor to discuss your needs and plan the best path forward.
+      </p>
+    </div>
+  </section>
+
+  <!-- Courses Presentation -->
+  <section id="courses" class="py-12 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <h3 class="text-3xl font-bold text-center text-[var(--primary-blue)]">Our Courses</h3>
+      <p class="mt-2 text-center text-gray-600">Comprehensive training to help you stand out in the UK medical job market.</p>
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-4 rounded-lg shadow-sm course-card">
+          <h4 class="mt-4 font-semibold">Advanced Interview Skills & Mock Examination Sessions</h4>
+          <p class="mt-2 text-gray-600 text-sm">Practice sessions and feedback to improve your confidence and performance.</p>
+          <p class="text-sm text-gray-600 mt-2">£150</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm course-card">
+          <h4 class="mt-4 font-semibold">Comprehensive Mentorship & UK Medical Pathway Guidance</h4>
+          <p class="mt-2 text-gray-600 text-sm">Personalised mentoring to navigate the UK healthcare system and career opportunities.</p>
+          <p class="text-sm text-gray-600 mt-2">£150</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm course-card">
+          <h4 class="mt-4 font-semibold">Professional CV and Job Application Enhancement</h4>
+          <p class="mt-2 text-gray-600 text-sm">Expert review and optimization of your CV and job applications for NHS roles.</p>
+          <p class="text-sm text-gray-600 mt-2">£150</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm course-card">
+          <h4 class="mt-4 font-semibold">MRCPCH Examination Preparation Programme</h4>
+          <p class="mt-2 text-gray-600 text-sm">Structured guidance and resources to excel in your MRCPCH examinations.</p>
+          <p class="text-sm text-gray-600 mt-2">£150</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm course-card">
+          <h4 class="mt-4 font-semibold">MRCP Examination Preparation Programme</h4>
+          <p class="mt-2 text-gray-600 text-sm">Comprehensive support to help you succeed in all parts of the MRCP exam.</p>
+          <p class="text-sm text-gray-600 mt-2">£150</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm course-card">
+          <h4 class="mt-4 font-semibold">MRCOG Examination Preparation Programme</h4>
+          <p class="mt-2 text-gray-600 text-sm">Focused training for each stage of the MRCOG assessment process.</p>
+          <p class="text-sm text-gray-600 mt-2">£150</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Educational Quote Section -->
+  <section class="py-12 bg-white border-t border-gray-200">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <blockquote class="text-xl italic text-gray-700">"Alone we can do so little; together we can do so much." — Helen Keller</blockquote>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="contact" class="bg-[var(--primary-blue)] text-white py-6">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <p>&copy; 2025 Medicalbuddies. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
