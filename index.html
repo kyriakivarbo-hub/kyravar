@@ -1,0 +1,681 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Medicalbuddies — Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --primary-red: #dc2626;
+      --primary-blue: #1e293b;
+      --primary-white: #ffffff;
+      --accent-gold: #f59e0b;
+      --text-gray: #64748b;
+      --bg-light: #f8fafc;
+    }
+    
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .course-card {
+      transition: all 0.3s ease;
+      border: 1px solid #e2e8f0;
+    }
+    .course-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      border-color: var(--primary-red);
+    }
+    
+    .professional-gradient {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    }
+    
+    .text-shadow {
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-red) 0%, #b91c1c 100%);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+    }
+    
+    .typewriter {
+      display: inline-block;
+      overflow: hidden;
+      border-right: .15em solid var(--accent-gold);
+      white-space: nowrap;
+      animation: typing 3s steps(20, end) infinite alternate, blink-caret .75s step-end infinite;
+    }
+    
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+    
+    @keyframes blink-caret {
+      from, to { border-color: transparent }
+      50% { border-color: var(--accent-gold); }
+    }
+    
+    .professional-card {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body class="bg-white text-slate-700 leading-relaxed">
+
+ <section class="relative professional-gradient">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 px-4 py-12 items-center">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-[var(--primary-blue)] leading-tight mb-6 text-shadow">
+          One-to-one guidance from doctors in training — because we've been where you are, and we know how to help you get there.
+        </h1>
+        <div class="bg-white/80 backdrop-blur-sm rounded-lg p-6 mb-8 border border-gray-200 shadow-sm">
+          <p class="text-lg text-[var(--text-gray)] mb-4">
+            ✨ <strong>Start with a complimentary 10-minute consultation</strong> — meet your mentor, discuss your goals, and create your personalized success pathway.
+          </p>
+        </div>
+        <!-- Existing button -->
+        <a href="#courses" class="btn-primary inline-block text-white px-8 py-4 rounded-lg shadow-lg font-semibold text-lg">
+          Explore Our Courses
+        </a>
+        <!-- New consultation button -->
+        <a href="booking.html?course=consultation" 
+           class="btn-primary inline-block text-white px-8 py-4 rounded-lg shadow-lg font-semibold text-lg mt-4">
+          Book Complimentary 10-Minute Consultation
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Value Proposition Section -->
+  <section class="py-16 bg-slate-50 text-center">
+    <div class="max-w-4xl mx-auto px-4">
+      <h2 class="text-3xl font-bold text-[var(--primary-blue)] mb-6">Exceptional Value, Professional Results</h2>
+      <div class="typewriter text-2xl text-[var(--primary-blue)] font-semibold">Average investment: £150 per session</div>
+      <p class="text-lg text-[var(--text-gray)] mt-6">Professional development that fits your budget, delivered by doctors who understand your journey.</p>
+    </div>
+  </section>
+
+  <!-- Meet Our Team Section -->
+  <section class="py-16 bg-white">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="professional-card rounded-xl shadow-xl p-10">
+      <h2 class="text-4xl font-bold text-center mb-8 text-[var(--primary-blue)]">Meet Our <span class="text-[var(--primary-red)]">Expert Team</span></h2>
+      <div class="prose prose-lg max-w-none text-[var(--text-gray)] leading-relaxed">
+        At Medicalbuddies, we understand the challenges and triumphs of moving abroad to build a medical career. As international medical graduates (IMGs) ourselves, we've experienced every step of the journey — from NHS job applications and interviews to adapting to a new healthcare system while preparing for postgraduate exams.
+        <br><br>
+        Our mission is simple: to empower IMGs through one-to-one mentorship that is personal, practical, and honest. We are not a large agency — we're doctors helping doctors, offering the kind of real-world support we wish we had when we started.
+        <br><br>
+        <strong>Meet the Team</strong>
+        <br><br>
+        <strong>Dr Kyra Varmpompiti MSc, MRCP (ST4 Neurology, Cambridge)</strong><br>
+        Graduated from the Medical School of Athens, Greece.
+        <br><br>
+        <strong>Dr Eleni Sarridimitriou, MRCPCH (ST2 Paediatrics, London)</strong><br>
+        Graduated from the Medical School of Thessaloniki, Greece.
+        <br><br>
+        <strong>Dr Firas Naffa', MRCOG, MRCPI, JBOG, ARBOG (ST4 Obstetrics & Gynaecology, Cambridge)</strong><br>
+        Graduated from the Medical School in Jordan.
+        <br><br>
+        Together, we bring diverse clinical experience across multiple specialties and regions of the UK, allowing us to support IMGs at all stages — whether you're just starting your journey or preparing for specialty training.
+        <br><br>
+        <strong>What We Offer</strong>
+        <br><br>
+        ✓ One-to-one live sessions tailored to your goals
+        <br><br>
+        ✓ CV reviews and mock interviews for NHS applications
+        <br><br>
+        ✓ Exam preparation with tips and mock practice for MRCP, MRCPCH, and MRCOG
+        <br><br>
+        ✓ Practical guidance on balancing work and study, drawn from our own experiences
+        <br><br>
+        To help you get started, we offer a free 10-minute trial chat — an informal meeting with your tutor to discuss your needs and plan the best path forward.
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Professional Programs Section -->
+  <section id="courses" class="py-16 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <h3 class="text-4xl font-bold text-[var(--primary-blue)] mb-4">Our Courses</h3>
+        <p class="text-xl text-[var(--text-gray)] max-w-3xl mx-auto">Comprehensive training to help you stand out in the UK medical job market.</p>
+      </div>
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-8 rounded-xl shadow-lg course-card">
+          <div class="h-2 bg-gradient-to-r from-red-500 to-red-600 rounded-t-xl -mt-8 -mx-8 mb-6"></div>
+          <h4 class="text-xl font-bold text-[var(--primary-blue)] mb-4">Advanced Interview Skills & Mock Examination Sessions</h4>
+          <p class="text-[var(--text-gray)] mb-6 leading-relaxed">Comprehensive practice sessions with detailed feedback to enhance your confidence and interview performance.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-[var(--primary-red)]">£150</span>
+            <span class="text-sm text-[var(--text-gray)] bg-slate-100 px-3 py-1 rounded-full">Professional</span>
+          </div>
+        </div>
+        <div class="bg-white p-8 rounded-xl shadow-lg course-card">
+          <div class="h-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-xl -mt-8 -mx-8 mb-6"></div>
+          <h4 class="text-xl font-bold text-[var(--primary-blue)] mb-4">Comprehensive Mentorship & UK Medical Pathway Guidance</h4>
+          <p class="text-[var(--text-gray)] mb-6 leading-relaxed">Personalized mentoring to strategically navigate the UK healthcare system and optimize career opportunities.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-[var(--primary-red)]">£150</span>
+            <span class="text-sm text-[var(--text-gray)] bg-slate-100 px-3 py-1 rounded-full">Strategic</span>
+          </div>
+        </div>
+        <div class="bg-white p-8 rounded-xl shadow-lg course-card">
+          <div class="h-2 bg-gradient-to-r from-green-500 to-green-600 rounded-t-xl -mt-8 -mx-8 mb-6"></div>
+          <h4 class="text-xl font-bold text-[var(--primary-blue)] mb-4">Professional CV and Job Application Enhancement</h4>
+          <p class="text-[var(--text-gray)] mb-6 leading-relaxed">Expert review and strategic optimization of your CV and applications for competitive NHS positions.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-[var(--primary-red)]">£150</span>
+            <span class="text-sm text-[var(--text-gray)] bg-slate-100 px-3 py-1 rounded-full">Essential</span>
+          </div>
+        </div>
+        <div class="bg-white p-8 rounded-xl shadow-lg course-card">
+          <div class="h-2 bg-gradient-to-r from-purple-500 to-purple-600 rounded-t-xl -mt-8 -mx-8 mb-6"></div>
+          <h4 class="text-xl font-bold text-[var(--primary-blue)] mb-4">MRCPCH Examination Preparation Sessions</h4>
+          <p class="text-[var(--text-gray)] mb-6 leading-relaxed">Structured, evidence-based preparation with comprehensive resources to excel in your MRCPCH examinations.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-[var(--primary-red)]">£150</span>
+            <span class="text-sm text-[var(--text-gray)] bg-slate-100 px-3 py-1 rounded-full">Specialist</span>
+          </div>
+        </div>
+        <div class="bg-white p-8 rounded-xl shadow-lg course-card">
+          <div class="h-2 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-t-xl -mt-8 -mx-8 mb-6"></div>
+          <h4 class="text-xl font-bold text-[var(--primary-blue)] mb-4">MRCP Examination Preparation Sessions</h4>
+          <p class="text-[var(--text-gray)] mb-6 leading-relaxed">Comprehensive, systematic support to master all components of the MRCP examination with confidence.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-[var(--primary-red)]">£150</span>
+            <span class="text-sm text-[var(--text-gray)] bg-slate-100 px-3 py-1 rounded-full">Advanced</span>
+          </div>
+        </div>
+        <div class="bg-white p-8 rounded-xl shadow-lg course-card">
+          <div class="h-2 bg-gradient-to-r from-pink-500 to-pink-600 rounded-t-xl -mt-8 -mx-8 mb-6"></div>
+          <h4 class="text-xl font-bold text-[var(--primary-blue)] mb-4">MRCOG Examination Preparation Sessions</h4>
+          <p class="text-[var(--text-gray)] mb-6 leading-relaxed">Targeted, comprehensive training for each stage of the MRCOG assessment with expert guidance.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-[var(--primary-red)]">£150</span>
+            <span class="text-sm text-[var(--text-gray)] bg-slate-100 px-3 py-1 rounded-full">Expert</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonial Section -->
+  <section class="py-16 bg-white">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <div class="professional-card rounded-xl p-12">
+        <blockquote class="text-2xl italic text-[var(--primary-blue)] font-medium mb-4">"Excellence is never an accident. It is always the result of high intention, sincere effort, and intelligent execution."</blockquote>
+        <cite class="text-[var(--text-gray)] font-semibold">— Aristotle</cite>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hidden Admin Section -->
+  <div id="hiddenAdmin" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-4 border-b flex justify-between items-center">
+          <h2 class="text-xl font-bold">Admin Panel</h2>
+          <button id="closeAdmin" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        </div>
+        
+        <!-- Admin Content -->
+        <div class="p-4">
+          <div id="authRoot">
+            <div class="bg-gray-50 rounded-md p-6 mb-4">
+              <h3 class="text-lg font-semibold mb-3 text-center">Enter Admin Password</h3>
+              <div class="max-w-sm mx-auto">
+                <label class="block text-sm font-medium mb-1">Password</label>
+                <input id="adminPassword" type="password" class="w-full border rounded px-3 py-2" placeholder="Password" />
+                <button id="unlockAdmin" class="mt-3 w-full bg-[var(--primary-red)] text-white px-4 py-2 rounded font-semibold hover:bg-red-600">Unlock</button>
+                <p id="authMessage" class="text-sm text-red-600 mt-2 hidden">Incorrect password.</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="adminRoot" class="hidden">
+            <h1 class="text-2xl font-bold text-[var(--primary-blue)] mb-4">Availability & Requests Admin</h1>
+
+            <!-- Availability registration -->
+            <section class="bg-gray-50 rounded-md p-4 mb-6">
+              <h2 class="text-lg font-semibold mb-3">Add Available Hours</h2>
+              <div class="grid gap-3 sm:grid-cols-2">
+                <div class="sm:col-span-2">
+                  <label class="block text-sm font-medium mb-1">Select Person</label>
+                  <select id="personSelect" class="w-full border rounded px-3 py-2">
+                    <option value="Eleni">Eleni</option>
+                    <option value="Firas">Firas</option>
+                    <option value="Kyra">Kyra</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1">Select Date</label>
+                  <input id="dateInput" type="date" class="w-full border rounded px-3 py-2" />
+                  <p id="datePreview" class="text-xs text-gray-500 mt-1"></p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1">Available Times (comma-separated)</label>
+                  <input id="timesInput" type="text" placeholder="hh:mm,hh:mm" class="w-full border rounded px-3 py-2" />
+                </div>
+              </div>
+              <div class="mt-4 flex gap-2">
+                <button id="confirmAvailability" class="bg-[var(--primary-red)] text-white px-4 py-2 rounded font-semibold hover:bg-red-600">Confirm</button>
+                <button id="refreshRequestsTop" class="border px-4 py-2 rounded hover:bg-gray-50">Refresh Requests</button>
+              </div>
+              <div id="availabilityResult" class="mt-3 text-sm"></div>
+            </section>
+
+            <!-- Delete specific time(s) from availability -->
+            <section class="bg-gray-50 rounded-md p-4 mb-6">
+              <h2 class="text-lg font-semibold mb-3">Delete Time From Availability</h2>
+              <div class="grid gap-3 sm:grid-cols-3">
+                <div>
+                  <label class="block text-sm font-medium mb-1">Select Person</label>
+                  <select id="personSelectDelete" class="w-full border rounded px-3 py-2">
+                    <option value="Eleni">Eleni</option>
+                    <option value="Firas">Firas</option>
+                    <option value="Kyra">Kyra</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1">Select Date</label>
+                  <input id="dateInputDelete" type="date" class="w-full border rounded px-3 py-2" />
+                  <p id="datePreviewDelete" class="text-xs text-gray-500 mt-1"></p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1">Time(s) to delete (comma-separated)</label>
+                  <input id="timesInputDelete" type="text" placeholder="hh:mm,hh:mm" class="w-full border rounded px-3 py-2" />
+                </div>
+              </div>
+              <div class="mt-4 flex gap-2">
+                <button id="confirmDeleteTimes" class="border px-4 py-2 rounded hover:bg-gray-50">Delete Times</button>
+              </div>
+              <div id="deleteResult" class="mt-3 text-sm"></div>
+            </section>
+
+            <!-- Requests queue -->
+            <section class="bg-gray-50 rounded-md p-4">
+              <h2 class="text-lg font-semibold mb-3">Pending Booking Requests</h2>
+              <div id="requestsContainer" class="space-y-3"></div>
+              <div class="mt-3">
+                <button id="refreshRequests" class="border px-4 py-2 rounded hover:bg-gray-50">Refresh</button>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer id="contact" class="bg-[var(--primary-blue)] text-white py-12">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center">
+        <h3 class="text-2xl font-bold mb-4">Ready to Advance Your Medical Career?</h3>
+        <p class="text-white/80 mb-6 max-w-2xl mx-auto">Join hundreds of international medical graduates who have successfully navigated their UK medical journey with our expert guidance.</p>
+        <div class="border-t border-white/20 pt-6 mt-8">
+          <p class="text-white/60">&copy; 2025 Medicalbuddies. All rights reserved. | Professional Medical Mentorship Services</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Admin Panel JavaScript
+    const AVAILABILITY_API = {
+      baseUrl: 'https://api.sheety.co/17eef15acf616d80920db8b74d3afd2d/medicalbuddies/',
+      sheetName: 'φύλλο1'
+    };
+
+    const REQUESTS_API = {
+      baseUrl: 'https://api.sheety.co/17eef15acf616d80920db8b74d3afd2d/medicalbuddiesDatabase/',
+      sheetName: 'φύλλο1'
+    };
+
+    const SHEETY_TOKEN = '';
+
+    const PERSON_TO_COURSES = {
+      'Eleni': ['MRCPCH Exam Preparation'],
+      'Firas': ['MRCOG Examination Preparation Programme'],
+      'Kyra': [
+        'Advanced Interview Skills & Mock Examination Sessions',
+        'Comprehensive Mentorship & UK Medical Pathway Guidance',
+        'Professional CV and Job Application Enhancement',
+        'MRCP Examination Preparation Programme'
+      ]
+    };
+
+    function authHeaders(base = {}) {
+      const headers = { ...base };
+      if (SHEETY_TOKEN) headers['Authorization'] = `Bearer ${SHEETY_TOKEN}`;
+      return headers;
+    }
+
+    function formatToDMY(dateStr) {
+      if (!dateStr) return '';
+      const parts = String(dateStr).split('-');
+      if (parts.length !== 3) return dateStr;
+      const [yearStr, monthStr, dayStr] = parts;
+      const day = String(Number(dayStr)).padStart(2, '0');
+      const month = String(Number(monthStr)).padStart(2, '0');
+      const year = String(Number(yearStr));
+      if (!year || !month || !day) return dateStr;
+      return `${day}/${month}/${year}`;
+    }
+
+    async function fetchAvailabilityRows() {
+      const url = `${AVAILABILITY_API.baseUrl}${encodeURIComponent(AVAILABILITY_API.sheetName)}?t=${Date.now()}`;
+      const res = await fetch(url, { headers: authHeaders(), cache: 'no-store' });
+      if (!res.ok) throw new Error(`Availability fetch failed: ${res.status}`);
+      const data = await res.json();
+      return data[AVAILABILITY_API.sheetName] || [];
+    }
+
+    async function updateAvailabilityRow(rowId, updates) {
+      const url = `${AVAILABILITY_API.baseUrl}${encodeURIComponent(AVAILABILITY_API.sheetName)}/${rowId}`;
+      const body = { [AVAILABILITY_API.sheetName]: updates, updatedAt: new Date().toISOString() };
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: authHeaders({ 'Content-Type': 'application/json', 'Accept': 'application/json' }),
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error(`Availability update failed: ${res.status}`);
+      return res.json();
+    }
+
+    async function fetchRequests() {
+      const url = `${REQUESTS_API.baseUrl}${encodeURIComponent(REQUESTS_API.sheetName)}?t=${Date.now()}`;
+      const res = await fetch(url, { headers: authHeaders(), cache: 'no-store' });
+      if (!res.ok) throw new Error(`Requests fetch failed: ${res.status}`);
+      const data = await res.json();
+      const value = data[REQUESTS_API.sheetName];
+      if (Array.isArray(value)) return value;
+      const firstArray = Object.values(data).find(v => Array.isArray(v));
+      return firstArray || [];
+    }
+
+    async function deleteRequest(id) {
+      const url = `${REQUESTS_API.baseUrl}${encodeURIComponent(REQUESTS_API.sheetName)}/${id}`;
+      const res = await fetch(url, { method: 'DELETE', headers: authHeaders() });
+      if (!res.ok) throw new Error(`Request delete failed: ${res.status}`);
+    }
+
+    async function approveRequest(requestObj) {
+      const courseName = requestObj.courseName;
+      const date = requestObj.date;
+      const selectedTimes = String(requestObj.time || '').split(',').map(t => t.trim()).filter(Boolean);
+      const rows = await fetchAvailabilityRows();
+      const match = rows.find(r => r.courseName === courseName && r.date === date);
+      if (!match) throw new Error('No matching availability row for course/date');
+
+      const timesStr = String(match.availableTimes || '').split(',').map(t => t.trim()).filter(Boolean).join(',');
+      let times = timesStr ? timesStr.split(',').map(t => t.trim()) : [];
+      if (!times.length) throw new Error('No available times on selected date');
+
+      let changed = false;
+      times = times.map(t => {
+        if (selectedTimes.includes(t)) { changed = true; return 'NONE'; }
+        return t;
+      });
+      if (!changed) throw new Error('Selected time not found in availability');
+
+      await updateAvailabilityRow(match.id, { availableTimes: times.join(',') });
+      await deleteRequest(requestObj.id);
+    }
+
+    function renderRequests(list) {
+      const container = document.getElementById('requestsContainer');
+      container.innerHTML = '';
+      if (!list.length) {
+        container.innerHTML = '<div class="text-sm text-gray-600">No pending requests.</div>';
+        return;
+      }
+      list.forEach(req => {
+        const courseField = req.courseName || req.course || '';
+        const card = document.createElement('div');
+        card.className = 'border rounded p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3';
+        card.innerHTML = `
+          <div class="text-sm">
+            <div><span class="font-semibold">Course:</span> ${courseField}</div>
+            <div><span class="font-semibold">Name:</span> ${req.name || ''} &lt;${req.email || ''}&gt;</div>
+            <div><span class="font-semibold">Date:</span> ${req.date || ''}</div>
+            <div><span class="font-semibold">Time:</span> ${req.time || ''}</div>
+            <div class="text-xs text-gray-500">Request ID: ${req.id}</div>
+          </div>
+          <div class="flex gap-2">
+            <button class="approveBtn bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">Approve</button>
+            <button class="declineBtn border px-3 py-1 rounded text-sm hover:bg-gray-50">Decline</button>
+          </div>
+        `;
+        card.querySelector('.approveBtn').addEventListener('click', async () => {
+          card.querySelector('.approveBtn').disabled = true;
+          try {
+            await approveRequest({ ...req, courseName: courseField });
+            await loadRequests();
+          } catch (e) {
+            alert(`Approve failed: ${e.message}`);
+            card.querySelector('.approveBtn').disabled = false;
+          }
+        });
+        card.querySelector('.declineBtn').addEventListener('click', async () => {
+          card.querySelector('.declineBtn').disabled = true;
+          try {
+            await deleteRequest(req.id);
+            await loadRequests();
+          } catch (e) {
+            alert(`Decline failed: ${e.message}`);
+            card.querySelector('.declineBtn').disabled = false;
+          }
+        });
+        container.appendChild(card);
+      });
+    }
+
+    async function loadRequests() {
+      try {
+        const list = await fetchRequests();
+        renderRequests(list);
+      } catch (e) {
+        const container = document.getElementById('requestsContainer');
+        container.innerHTML = `<div class="text-sm text-red-600">Failed to load requests: ${e.message}</div>`;
+      }
+    }
+
+    async function handleConfirmAvailability() {
+      const person = document.getElementById('personSelect').value;
+      const dateRaw = document.getElementById('dateInput').value;
+      const timesRaw = document.getElementById('timesInput').value.trim();
+      const result = document.getElementById('availabilityResult');
+      result.textContent = '';
+
+      if (!dateRaw || !timesRaw) {
+        result.textContent = 'Please select a date and enter times.';
+        result.className = 'mt-3 text-sm text-red-600';
+        return;
+      }
+
+      const date = formatToDMY(dateRaw);
+      const times = timesRaw.split(',').map(t => t.trim()).filter(Boolean).join(',');
+
+      const targetCourses = PERSON_TO_COURSES[person] || [];
+      if (!targetCourses.length) {
+        result.textContent = 'No target courses mapped for selected person.';
+        result.className = 'mt-3 text-sm text-red-600';
+        return;
+      }
+
+      try {
+        const rows = await fetchAvailabilityRows();
+        const updates = [];
+        for (const courseName of targetCourses) {
+          const emptyRow = rows.find(r => r.courseName === courseName && (!r.date || r.date.trim() === '' || r.date === 'NONE'));
+          if (!emptyRow) {
+            updates.push({ courseName, status: 'No empty row found' });
+            continue;
+          }
+          await updateAvailabilityRow(emptyRow.id, { date, availableTimes: times });
+          updates.push({ courseName, status: 'Updated' });
+        }
+        const ok = updates.filter(u => u.status === 'Updated').map(u => u.courseName).join(', ');
+        const not = updates.filter(u => u.status !== 'Updated').map(u => `${u.courseName} (${u.status})`).join(', ');
+        result.className = 'mt-3 text-sm';
+        result.innerHTML = `
+          <div class="text-green-700">Updated: ${ok || 'None'}</div>
+          ${not ? `<div class="text-gray-600">Skipped: ${not}</div>` : ''}
+        `;
+      } catch (e) {
+        result.textContent = `Failed: ${e.message}`;
+        result.className = 'mt-3 text-sm text-red-600';
+      }
+    }
+
+    async function deleteTimesForPerson() {
+      const person = document.getElementById('personSelectDelete').value;
+      const dateRaw = document.getElementById('dateInputDelete').value;
+      const timesRaw = document.getElementById('timesInputDelete').value.trim();
+      const result = document.getElementById('deleteResult');
+      result.textContent = '';
+
+      if (!dateRaw || !timesRaw) {
+        result.textContent = 'Please select a date and enter times to delete.';
+        result.className = 'mt-3 text-sm text-red-600';
+        return;
+      }
+
+      const date = formatToDMY(dateRaw);
+      const timesToDelete = timesRaw.split(',').map(t => t.trim()).filter(Boolean);
+
+      const targetCourses = PERSON_TO_COURSES[person] || [];
+      if (!targetCourses.length) {
+        result.textContent = 'No target courses mapped for selected person.';
+        result.className = 'mt-3 text-sm text-red-600';
+        return;
+      }
+
+      try {
+        const rows = await fetchAvailabilityRows();
+        const updates = [];
+        for (const courseName of targetCourses) {
+          const row = rows.find(r => r.courseName === courseName && r.date === date);
+          if (!row) {
+            updates.push({ courseName, status: 'No row found for date' });
+            continue;
+          }
+          const currentTimes = String(row.availableTimes || '')
+            .split(',')
+            .map(t => t.trim())
+            .filter(Boolean);
+
+          if (!currentTimes.length) {
+            updates.push({ courseName, status: 'No times to edit' });
+            continue;
+          }
+
+          const newTimes = currentTimes.map(t => (timesToDelete.includes(t) ? 'NONE' : t));
+          await updateAvailabilityRow(row.id, { availableTimes: newTimes.join(',') });
+          updates.push({ courseName, status: 'Updated' });
+        }
+
+        const ok = updates.filter(u => u.status === 'Updated').map(u => u.courseName).join(', ');
+        const not = updates.filter(u => u.status !== 'Updated').map(u => `${u.courseName} (${u.status})`).join(', ');
+        result.className = 'mt-3 text-sm';
+        result.innerHTML = `
+          <div class="text-green-700">Updated: ${ok || 'None'}</div>
+          ${not ? `<div class="text-gray-600">Skipped: ${not}</div>` : ''}
+        `;
+      } catch (e) {
+        result.textContent = `Failed: ${e.message}`;
+        result.className = 'mt-3 text-sm text-red-600';
+      }
+    }
+
+    // Secret access method - Triple click on footer
+    let footerClickCount = 0;
+    let footerClickTimer = null;
+
+    document.querySelector('footer').addEventListener('click', function() {
+      footerClickCount++;
+      
+      if (footerClickTimer) {
+        clearTimeout(footerClickTimer);
+      }
+      
+      if (footerClickCount === 3) {
+        // Show admin panel
+        document.getElementById('hiddenAdmin').classList.remove('hidden');
+        footerClickCount = 0;
+      } else {
+        footerClickTimer = setTimeout(() => {
+          footerClickCount = 0;
+        }, 1000); // Reset after 1 second
+      }
+    });
+
+    // Close admin panel
+    document.getElementById('closeAdmin').addEventListener('click', function() {
+      document.getElementById('hiddenAdmin').classList.add('hidden');
+    });
+
+    // Close on background click
+    document.getElementById('hiddenAdmin').addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.add('hidden');
+      }
+    });
+
+    // Admin functionality
+    const PASSWORD = 'Stefanos_is_the_best';
+    
+    function gateAdmin() {
+      const unlockBtn = document.getElementById('unlockAdmin');
+      const pwdInput = document.getElementById('adminPassword');
+      const msg = document.getElementById('authMessage');
+      const authRoot = document.getElementById('authRoot');
+      const adminRoot = document.getElementById('adminRoot');
+      
+      unlockBtn.addEventListener('click', () => {
+        if (pwdInput.value === PASSWORD) {
+          msg.classList.add('hidden');
+          authRoot.classList.add('hidden');
+          adminRoot.classList.remove('hidden');
+          loadRequests(); // Load requests when unlocked
+        } else {
+          msg.classList.remove('hidden');
+        }
+      });
+      
+      pwdInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') unlockBtn.click();
+      });
+    }
+
+    // Initialize admin functionality
+    gateAdmin();
+
+    // Bind admin UI events
+    document.getElementById('confirmAvailability').addEventListener('click', handleConfirmAvailability);
+    document.getElementById('refreshRequests').addEventListener('click', loadRequests);
+    document.getElementById('refreshRequestsTop').addEventListener('click', loadRequests);
+    document.getElementById('dateInput').addEventListener('change', () => {
+      document.getElementById('datePreview').textContent = `Selected: ${formatToDMY(document.getElementById('dateInput').value)}`;
+    });
+    document.getElementById('confirmDeleteTimes').addEventListener('click', deleteTimesForPerson);
+    document.getElementById('dateInputDelete').addEventListener('change', () => {
+      document.getElementById('datePreviewDelete').textContent = `Selected: ${formatToDMY(document.getElementById('dateInputDelete').value)}`;
+    });
+  </script>
+</body>
+</html>
